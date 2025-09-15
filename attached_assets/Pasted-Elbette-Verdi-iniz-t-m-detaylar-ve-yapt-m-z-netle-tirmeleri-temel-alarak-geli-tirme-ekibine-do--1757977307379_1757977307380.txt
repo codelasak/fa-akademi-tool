@@ -1,0 +1,98 @@
+Elbette. Verdiğiniz tüm detayları ve yaptığımız netleştirmeleri temel alarak, geliştirme ekibine doğrudan sunulabilecek, kapsamlı ve detaylı bir Ürün Gereksinimleri Dokümanı (PRD) hazırladım.
+
+-----
+
+### **Ürün Gereksinimleri Dokümanı (PRD): Fenavar Akademi Yönetim Platformu**
+
+**Versiyon:** 2.0
+**Tarih:** 16.09.2025
+
+**Doküman Geçmişi**
+| Versiyon | Tarih | Yazar | Açıklama |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 16.09.2025 | Proje Sahibi | İlk taslak oluşturuldu. |
+| 2.0 | 16.09.2025 | Gemini | Geri bildirimler ve detaylandırma soruları sonrası gereksinimler netleştirildi ve son haline getirildi. |
+
+-----
+
+### **1. Projenin Amacı ve Problem Tanımı**
+
+**1.1. Problem Tanımı**
+Fenavar Akademi, birden çok okula, birden çok öğretmenle Robotik Yazılım ve CS50x gibi dersler için hizmet vermektedir. Mevcut durumda, okulların, sınıfların ve öğretmenlerin ders ilerlemesi, finansal takibi ve raporlaması Excel tabloları üzerinden ayrı ayrı takip edilmektedir. Bu yöntem; merkezi yönetim, anlık raporlama, veri tutarlılığı ve operasyonel verimlilik konularında ciddi zorluklar yaratmaktadır.
+
+**1.2. Hedeflenen Çözüm ve İş Değeri**
+Geliştirilecek olan web tabanlı **"Fenavar Akademi Yönetim Platformu"**, tüm eğitim-öğretim ve idari süreçleri tek bir merkezde toplayarak dijitalleştirmeyi hedefler.
+
+  * **İş Değeri:**
+      * **Merkezileştirme:** Tüm okul, sınıf, öğretmen, öğrenci ve müfredat verilerini tek bir noktadan yöneterek veri bütünlüğü sağlamak.
+      * **Verimlilik:** Ders kaydı, yoklama ve raporlama gibi manuel işlemleri otomatikleştirerek öğretmenlerin ve yönetimin zamandan tasarruf etmesini sağlamak.
+      * **Şeffaflık:** Okul müdürlerine, kendi okullarındaki derslerin ilerleyişi hakkında anlık ve standart raporlar sunarak iletişimi güçlendirmek.
+      * **Finansal Kontrol:** Okul ödemeleri ve öğretmen hakedişlerinin, işlenen ders saatlerine göre otomatik hesaplanması ve kolayca takip edilmesi.
+
+### **2. Kullanıcı Rolleri ve Yetkilendirme**
+
+Sistemde üç ana kullanıcı rolü bulunacaktır:
+
+| Rol Adı | Açıklama ve Yetkileri |
+| :--- | :--- |
+| **Fenavar Akademi Admini** | **Tam Yetkili Yönetici.**\<br\>- Sistemdeki tüm kullanıcıları (Öğretmen, Okul Müdürü) kullanıcı adı ve kalıcı şifre atayarak oluşturur, düzenler, siler.\<br\>- Okul, sınıf (`örn: 9-A Robotik`) ve öğrenci listeleri oluşturur ve yönetir.\<br\>- Öğretmenleri okullara ve sınıflara atar.\<br\>- Sınıf bazında "Yoklama Sistemi"ni aktif/pasif edebilir.\<br\>- **Finans Yönetimi:** Okullarla anlaşılan aylık ücretleri ve öğretmenlerin saatlik hakediş ücretlerini sisteme tanımlar.\<br\>- Okul ödemelerini ve sistem tarafından otomatik hesaplanan öğretmen hakedişlerini takip eder.\<br\>- Tüm sisteme dair detaylı raporları (ders, yoklama, finans) görebilir ve PDF olarak dışa aktarabilir. |
+| **Öğretmen** | **İçerik ve Ders Akışı Sorumlusu.**\<br\>- Sadece kendisine atanmış okulların ve sınıfların ders programını takvim üzerinde görür ve yönetir.\<br\>- **Müfredat Yönetimi:** Sorumlu olduğu derslerin müfredatını (konu başlıklarını) kendisi oluşturur ve düzenler.\<br\>- İşlediği dersleri sisteme kaydeder (Tarih, Konu, Notlar, İşlenen Ders Saati).\<br\>- Ders iptallerini sisteme not olarak düşebilir.\<br\>- Yoklama sistemi aktif ise derse katılan öğrencilerin yoklamasını alır (**Geldi, Gelmedi, Geç Kaldı, İzinli**).\<br\>- **Önemli Kural:** Yoklama, sadece dersin yapıldığı gün ve ders saati bitmeden girilebilir. Geçmişe dönük yoklama girişi/düzenlemesi yapılamaz. |
+| **Okul Müdürü / Yönetici** | **Sınırlı Erişimli Gözlemci.**\<br\>- Sadece kendi okuluna ait verileri görebilir (Bir kullanıcı birden fazla okula atanamaz).\<br\>- Veri girişi veya düzenleme **yapamaz**.\<br\>- Kendi okulundaki sınıfların haftalık ders işleme durumunu, konularını ve öğretmen notlarını takip eder.\<br\>- Öğrenci yoklama durumlarını ve devamsızlık raporlarını görüntüleyebilir.\<br\>- Okuluna ait özet raporları logolu formatta PDF olarak indirebilir. |
+
+### **3. Sistem Özellikleri ve Fonksiyonlar (MVP Kapsamı)**
+
+**3.1. Yönetim Modülü (Admin Paneli)**
+
+  * **Okul Yönetimi:** Okul Adı, İlçe ve Okul Logosu bilgileriyle yeni okul oluşturma.
+  * **Sınıf Yönetimi:** Okula bağlı olarak `Sınıf Adı (örn: 9-A Robotik)` formatında sınıf oluşturma. Bir fiziki sınıfa birden fazla ders atanacaksa, her biri için ayrı kayıt oluşturulur.
+  * **Öğrenci Yönetimi:** Sınıflara ait öğrenci listelerini oluşturma ve güncelleme.
+  * **Atama İşlemleri:** Öğretmenleri okullara ve dersleri (sınıfları) öğretmenlere atama.
+
+**3.2. Finans Modülü (Admin Paneli)**
+
+  * **Okul Ödeme Tanımlama:** Her okul için anlaşılan aylık sabit ödeme tutarının girileceği bir arayüz.
+  * **Öğretmen Hakediş Tanımlama:** Her öğretmen için geçerli olan **saatlik ders ücretinin** tanımlandığı bir alan.
+  * **Takip Ekranları:**
+      * Okul bazında aylık ödeme tabloları (Anlaşılan Tutar, Ödenen Tutar, Kalan, Ödeme Tarihi, Durum: Ödendi/Bekleniyor).
+      * Öğretmen bazında aylık hakediş tabloları. Sistem, öğretmenin girdiği ders kayıtlarındaki **toplam saate göre** aylık hakedişi otomatik olarak hesaplar ve bu tabloda gösterir.
+
+**3.3. Öğretmen Modülü (Öğretmen Paneli)**
+
+  * **Takvim Görünümü:** Öğretmenin haftalık/aylık ders programını gösteren, dersleri düzenleyebileceği interaktif bir takvim.
+  * **Müfredat Yönetim Aracı:** Öğretmenin kendi dersleri için konu başlıkları ekleyip çıkarabileceği basit bir arayüz.
+  * **Ders Kayıt Formu:**
+      * Tarih, Okul, Sınıf (Otomatik veya seçimli).
+      * Müfredattan işlenen **konu(lar)ın** seçimi.
+      * **İşlenen Toplam Ders Saati:** (Örn: `2.5` saat) - Hakediş hesaplaması için kritik alan.
+      * Derse özel notlar için metin alanı.
+      * Dersin iptal edilmesi durumunda işaretlenecek bir kutucuk ve nedenini belirten bir not alanı.
+  * **Yoklama Arayüzü:** Ders kaydı sırasında açılan, öğrenci listesini ve **Geldi, Gelmedi, Geç Kaldı, İzinli** seçeneklerini içeren arayüz.
+
+**3.4. Raporlama Modülü (Tüm Roller)**
+
+  * **Genel Bakış (Dashboard):** Her rolün giriş yaptığında kendi yetkisine uygun özet bilgileri (yaklaşan dersler, tamamlanan ders sayısı vb.) gördüğü bir ana sayfa.
+  * **Ders İlerleme Raporu:** Tarih aralığı, okul, sınıf, ders ve öğretmen bazında filtrelenebilen; işlenen dersleri, konuları ve öğretmen notlarını listeleyen rapor.
+  * **Yoklama Raporu:** Sınıf bazında, tarih aralığına göre devamsızlık ve katılım istatistiklerini (**Geldi, Gelmedi, Geç Kaldı, İzinli** sayıları dahil) gösteren rapor.
+  * **PDF Çıktısı:** Tüm raporların, **Fenavar Akademi ve ilgili Okulun logosunu** içerecek şekilde, standart bir formatta PDF olarak indirilebilmesi.
+
+### **4. Teknik Gereksinimler**
+
+  * **Frontend:** React ve Next.js framework'ü kullanılacaktır.
+  * **Backend:** Next.js API Routes kullanılacaktır.
+  * **Veritabanı:** MySQL.
+  * **Authentication (Kimlik Doğrulama):** NextAuth.js kütüphanesi ile rol bazlı yetkilendirme yapılacaktır.
+  * **UI/UX (Arayüz):** Shadcn/ui veya benzeri modern bir UI kütüphanesi kullanılarak sade, anlaşılır ve kullanıcı dostu bir tasarım benimsenecektir. Arayüz, mobil ve tablet cihazlarda sorunsuz çalışmalıdır (Responsive Design).
+
+### **5. Kapsam Dışı Konular (MVP için)**
+
+  * Öğrenci bazında detaylı akademik ilerleme ve not takibi.
+  * Veli bilgilendirme portalı veya bildirimleri.
+  * Ödev verme ve takibi.
+  * Detaylı muhasebe entegrasyonları ve faturalandırma.
+  * Öğretmenler arası veya yönetimle anlık mesajlaşma.
+
+### **6. Gelecek Vizyonu ve Potansiyel Geliştirmeler**
+
+  * **Yapay Zeka Destekli Raporlama:** "En çok zorlanılan konular", "Sınıflar arası ilerleme karşılaştırması" gibi akıllı raporlar oluşturmak.
+  * **WhatsApp Otomasyonu:** Öğretmenlere ders hatırlatmaları göndermek ve ders kaydı girildiğinde okul müdürüne otomatik özet iletmek.
+  * **Materyal Yönetimi:** Öğretmenlerin ders materyallerini (sunum, doküman vb.) sisteme yükleyebilmesi.
