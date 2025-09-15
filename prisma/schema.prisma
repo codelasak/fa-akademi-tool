@@ -1,0 +1,308 @@
+// Fenavar Academy Management Platform Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+// Core Platform Models
+enum UserRole {
+  ADMIN
+  TEACHER
+  PRINCIPAL
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isActive      Boolean   @default(true)
+
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+
+  // Platform relations
+  teacherProfile     TeacherProfile?
+  principalProfile   PrincipalProfile?
+  
+  @@map("users")
+}
+
+model School {
+  id            String   @id @default(cuid())
+  name          String
+  district      String
+  logoUrl       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean  @default(true)
+
+  // Relations
+  classes       Class[]
+  teacherAssignments TeacherAssignment[]
+  principalProfile   PrincipalProfile?
+  schoolPayments     SchoolPayment[]
+
+  @@map("schools")
+}
+
+model Class {
+  id                String   @id @default(cuid())
+  name              String   // e.g., "9-A Robotik"
+  subject           String   // e.g., "Robotik", "CS50x"
+  schoolId          String
+  isAttendanceEnabled Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  isActive          Boolean  @default(true)
+
+  // Relations
+  school            School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  students          Student[]
+  teacherAssignments TeacherAssignment[]
+  lessons           Lesson[]
+  curriculumTopics  CurriculumTopic[]
+
+  @@map("classes")
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  classId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  // Relations
+  class       Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  attendance  Attendance[]
+
+  @@map("students")
+}
+
+model TeacherProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  hourlyRate        Decimal  @db.Decimal(10, 2)
+  bio               String?
+  specializations   String[] // Array of subjects they can teach
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments       TeacherAssignment[]
+  lessons           Lesson[]
+  curriculumTopics  CurriculumTopic[]
+  wageRecords       TeacherWageRecord[]
+
+  @@map("teacher_profiles")
+}
+
+model PrincipalProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  schoolId  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school    School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("principal_profiles")
+}
+
+model TeacherAssignment {
+  id         String   @id @default(cuid())
+  teacherId  String
+  schoolId   String
+  classId    String
+  assignedAt DateTime @default(now())
+  isActive   Boolean  @default(true)
+
+  // Relations
+  teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  school     School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  class      Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, classId])
+  @@map("teacher_assignments")
+}
+
+model CurriculumTopic {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  orderIndex  Int
+  classId     String
+  teacherId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  class       Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher     TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  lessons     LessonTopic[]
+
+  @@map("curriculum_topics")
+}
+
+model Lesson {
+  id            String   @id @default(cuid())
+  date          DateTime
+  classId       String
+  teacherId     String
+  hoursWorked   Decimal  @db.Decimal(4, 2) // e.g., 2.5 hours
+  notes         String?
+  isCancelled   Boolean  @default(false)
+  cancellationReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  class         Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher       TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  topics        LessonTopic[]
+  attendance    Attendance[]
+
+  @@map("lessons")
+}
+
+model LessonTopic {
+  id        String @id @default(cuid())
+  lessonId  String
+  topicId   String
+
+  // Relations
+  lesson    Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  topic     CurriculumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, topicId])
+  @@map("lesson_topics")
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  lessonId  String
+  studentId String
+  status    AttendanceStatus
+  notes     String?
+  createdAt DateTime         @default(now())
+
+  // Relations
+  lesson    Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, studentId])
+  @@map("attendance")
+}
+
+model SchoolPayment {
+  id              String        @id @default(cuid())
+  schoolId        String
+  month           Int           // 1-12
+  year            Int
+  agreedAmount    Decimal       @db.Decimal(10, 2)
+  paidAmount      Decimal       @db.Decimal(10, 2) @default(0)
+  paymentDate     DateTime?
+  status          PaymentStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  school          School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, month, year])
+  @@map("school_payments")
+}
+
+model TeacherWageRecord {
+  id              String        @id @default(cuid())
+  teacherId       String
+  month           Int           // 1-12
+  year            Int
+  totalHours      Decimal       @db.Decimal(8, 2)
+  hourlyRate      Decimal       @db.Decimal(10, 2)
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  paidAmount      Decimal       @db.Decimal(10, 2) @default(0)
+  paymentDate     DateTime?
+  status          PaymentStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  teacher         TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, month, year])
+  @@map("teacher_wage_records")
+}
