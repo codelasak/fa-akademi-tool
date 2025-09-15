@@ -14,10 +14,10 @@ async function main() {
     update: {},
     create: {
       username: "admin",
-      email: "admin@fenavar.com",
+      email: "admin@fennaver.com",
       password: hashedPassword,
-      firstName: "System",
-      lastName: "Administrator",
+      firstName: "Sistem",
+      lastName: "Yöneticisi",
       role: UserRole.ADMIN,
       isActive: true,
     },
@@ -46,7 +46,7 @@ async function main() {
     update: {},
     create: {
       username: "teacher1",
-      email: "teacher@fenavar.com",
+      email: "teacher@fennaver.com",
       password: teacherPassword,
       firstName: "Ahmet",
       lastName: "Öztürk",
@@ -71,7 +71,7 @@ async function main() {
     update: {},
     create: {
       username: "principal1",
-      email: "principal@fenavar.com",
+      email: "principal@fennaver.com",
       password: principalPassword,
       firstName: "Ayşe",
       lastName: "Demir",
