@@ -25,9 +25,6 @@ const nextConfig = {
     ]
   },
   // Configure for Replit environment
-  experimental: {
-    allowedOrigins: ["*"]
-  },
   // Allow all hosts for development in Replit
   async headers() {
     return [
