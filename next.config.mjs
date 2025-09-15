@@ -23,6 +23,24 @@ const nextConfig = {
         port: ""
       }
     ]
+  },
+  // Configure for Replit environment
+  experimental: {
+    allowedOrigins: ["*"]
+  },
+  // Allow all hosts for development in Replit
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
+    ];
   }
 };
 
