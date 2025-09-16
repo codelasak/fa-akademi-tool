@@ -55,13 +55,15 @@ interface DashboardData {
 export default function PrincipalDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session?.user || session.user.role !== "PRINCIPAL") {
       router.push("/auth/sign-in");
       return;
@@ -89,36 +91,44 @@ export default function PrincipalDashboard() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: 'TRY',
+    return new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "TRY",
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('tr-TR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleString("tr-TR", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PAID': return 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-200';
-      case 'PENDING': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'OVERDUE': return 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-200';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900 dark:text-gray-200';
+      case "PAID":
+        return "text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-200";
+      case "PENDING":
+        return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-200";
+      case "OVERDUE":
+        return "text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-200";
+      default:
+        return "text-gray-600 bg-gray-100 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'PAID': return 'Ödendi';
-      case 'PENDING': return 'Beklemede';
-      case 'OVERDUE': return 'Gecikmiş';
-      default: return status;
+      case "PAID":
+        return "Ödendi";
+      case "PENDING":
+        return "Beklemede";
+      case "OVERDUE":
+        return "Gecikmiş";
+      default:
+        return status;
     }
   };
 
@@ -126,8 +136,10 @@ export default function PrincipalDashboard() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Dashboard yükleniyor...</p>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Dashboard yükleniyor...
+          </p>
         </div>
       </div>
     );
@@ -137,11 +149,11 @@ export default function PrincipalDashboard() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">⚠️</div>
+          <div className="mb-4 text-xl text-red-500">⚠️</div>
           <p className="text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={fetchDashboardData}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90"
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-opacity-90"
           >
             Tekrar Dene
           </button>
@@ -163,7 +175,8 @@ export default function PrincipalDashboard() {
             {dashboardData.school.name} - Müdür Paneli
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {dashboardData.school.district} • Hoş geldiniz, {session?.user?.firstName} {session?.user?.lastName}
+            {dashboardData.school.district} • Hoş geldiniz,{" "}
+            {session?.user?.firstName} {session?.user?.lastName}
           </p>
         </div>
         <div className="flex space-x-4">
@@ -181,8 +194,12 @@ export default function PrincipalDashboard() {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Sınıf</p>
-              <p className="text-2xl font-bold text-dark dark:text-white">{dashboardData.statistics.totalClasses}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Toplam Sınıf
+              </p>
+              <p className="text-2xl font-bold text-dark dark:text-white">
+                {dashboardData.statistics.totalClasses}
+              </p>
             </div>
             <div className="text-3xl">🏫</div>
           </div>
@@ -191,8 +208,12 @@ export default function PrincipalDashboard() {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Öğrenci</p>
-              <p className="text-2xl font-bold text-dark dark:text-white">{dashboardData.statistics.totalStudents}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Toplam Öğrenci
+              </p>
+              <p className="text-2xl font-bold text-dark dark:text-white">
+                {dashboardData.statistics.totalStudents}
+              </p>
             </div>
             <div className="text-3xl">👥</div>
           </div>
@@ -201,8 +222,12 @@ export default function PrincipalDashboard() {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif Öğretmen</p>
-              <p className="text-2xl font-bold text-dark dark:text-white">{dashboardData.statistics.activeTeachers}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Aktif Öğretmen
+              </p>
+              <p className="text-2xl font-bold text-dark dark:text-white">
+                {dashboardData.statistics.activeTeachers}
+              </p>
             </div>
             <div className="text-3xl">👨‍🏫</div>
           </div>
@@ -211,8 +236,12 @@ export default function PrincipalDashboard() {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Devam Oranı</p>
-              <p className={`text-2xl font-bold ${dashboardData.statistics.attendanceRate >= 85 ? 'text-green-600' : dashboardData.statistics.attendanceRate >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Devam Oranı
+              </p>
+              <p
+                className={`text-2xl font-bold ${dashboardData.statistics.attendanceRate >= 85 ? "text-green-600" : dashboardData.statistics.attendanceRate >= 70 ? "text-yellow-600" : "text-red-600"}`}
+              >
                 {dashboardData.statistics.attendanceRate.toFixed(1)}%
               </p>
             </div>
@@ -224,78 +253,118 @@ export default function PrincipalDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
-          <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">Son Dersler</h3>
+          <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">
+            Son Dersler
+          </h3>
           {dashboardData.recentActivity.lessons.length > 0 ? (
             <div className="space-y-3">
-              {dashboardData.recentActivity.lessons.slice(0, 5).map((lesson) => (
-                <div key={lesson.id} className="flex items-center justify-between border-b border-gray-200 pb-3 last:border-b-0 dark:border-gray-700">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium text-dark dark:text-white">{lesson.className}</p>
-                      {lesson.isCancelled && (
-                        <span className="rounded-full bg-red-100 px-2 py-1 text-xs text-red-800 dark:bg-red-900 dark:text-red-200">
-                          İptal
-                        </span>
-                      )}
+              {dashboardData.recentActivity.lessons
+                .slice(0, 5)
+                .map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className="flex items-center justify-between border-b border-gray-200 pb-3 last:border-b-0 dark:border-gray-700"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <p className="font-medium text-dark dark:text-white">
+                          {lesson.className}
+                        </p>
+                        {lesson.isCancelled && (
+                          <span className="rounded-full bg-red-100 px-2 py-1 text-xs text-red-800 dark:bg-red-900 dark:text-red-200">
+                            İptal
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {lesson.subject} • {lesson.teacherName}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        {formatDate(lesson.date)} • {lesson.hoursWorked} saat
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {lesson.subject} • {lesson.teacherName}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {formatDate(lesson.date)} • {lesson.hoursWorked} saat
-                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : (
-            <p className="text-gray-600 dark:text-gray-400">Henüz ders kaydı bulunmuyor.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              Henüz ders kaydı bulunmuyor.
+            </p>
           )}
         </div>
 
         {/* Financial Overview */}
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
-          <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">Finansal Durum</h3>
-          
+          <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">
+            Finansal Durum
+          </h3>
+
           {/* Monthly Payment */}
           {dashboardData.financial.monthlyPayment && (
             <div className="mb-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aylık Ödeme</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Aylık Ödeme
+                  </p>
                   <p className="text-lg font-bold text-dark dark:text-white">
-                    {formatCurrency(dashboardData.financial.monthlyPayment.amount)}
+                    {formatCurrency(
+                      dashboardData.financial.monthlyPayment.amount,
+                    )}
                   </p>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(dashboardData.financial.monthlyPayment.status)}`}>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(dashboardData.financial.monthlyPayment.status)}`}
+                >
                   {getStatusText(dashboardData.financial.monthlyPayment.status)}
                 </span>
               </div>
               <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                Vade: {new Date(dashboardData.financial.monthlyPayment.dueDate).toLocaleDateString('tr-TR')}
+                Vade:{" "}
+                {new Date(
+                  dashboardData.financial.monthlyPayment.dueDate,
+                ).toLocaleDateString("tr-TR")}
               </p>
             </div>
           )}
 
           {/* Wages Summary */}
           <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Öğretmen Maaşları</p>
+            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+              Öğretmen Maaşları
+            </p>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-500">Toplam</p>
-                <p className="font-semibold text-dark dark:text-white">{formatCurrency(dashboardData.financial.wages.total)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  Toplam
+                </p>
+                <p className="font-semibold text-dark dark:text-white">
+                  {formatCurrency(dashboardData.financial.wages.total)}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-500">Ödenen</p>
-                <p className="font-semibold text-green-600">{formatCurrency(dashboardData.financial.wages.paid)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  Ödenen
+                </p>
+                <p className="font-semibold text-green-600">
+                  {formatCurrency(dashboardData.financial.wages.paid)}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-500">Bekleyen</p>
-                <p className="font-semibold text-yellow-600">{formatCurrency(dashboardData.financial.wages.pending)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  Bekleyen
+                </p>
+                <p className="font-semibold text-yellow-600">
+                  {formatCurrency(dashboardData.financial.wages.pending)}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-500">Öğretmen</p>
-                <p className="font-semibold text-dark dark:text-white">{dashboardData.financial.wages.count}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  Öğretmen
+                </p>
+                <p className="font-semibold text-dark dark:text-white">
+                  {dashboardData.financial.wages.count}
+                </p>
               </div>
             </div>
           </div>
@@ -304,24 +373,43 @@ export default function PrincipalDashboard() {
 
       {/* Classes Overview */}
       <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
-        <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">Sınıflar</h3>
+        <h3 className="mb-4 text-xl font-semibold text-dark dark:text-white">
+          Sınıflar
+        </h3>
         {dashboardData.classes.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Sınıf</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Konu</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Öğrenci</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Öğretmen</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Devamsızlık</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                    Sınıf
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                    Konu
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                    Öğrenci
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                    Öğretmen
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                    Devamsızlık
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {dashboardData.classes.map((cls) => (
-                  <tr key={cls.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-4 py-3 font-medium text-dark dark:text-white">{cls.name}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{cls.subject}</td>
+                  <tr
+                    key={cls.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    <td className="px-4 py-3 font-medium text-dark dark:text-white">
+                      {cls.name}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                      {cls.subject}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                         {cls.studentCount}
@@ -333,8 +421,10 @@ export default function PrincipalDashboard() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${cls.isAttendanceEnabled ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}`}>
-                        {cls.isAttendanceEnabled ? '✓ Aktif' : '✗ Pasif'}
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-medium ${cls.isAttendanceEnabled ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"}`}
+                      >
+                        {cls.isAttendanceEnabled ? "✓ Aktif" : "✗ Pasif"}
                       </span>
                     </td>
                   </tr>
@@ -343,7 +433,9 @@ export default function PrincipalDashboard() {
             </table>
           </div>
         ) : (
-          <p className="text-gray-600 dark:text-gray-400">Henüz sınıf bulunmuyor.</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Henüz sınıf bulunmuyor.
+          </p>
         )}
       </div>
     </div>

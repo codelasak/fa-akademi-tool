@@ -45,7 +45,7 @@ export async function GET() {
     console.error("Öğretmen listesi getirme hatası:", error);
     return NextResponse.json(
       { error: "Öğretmen listesi getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     if (existingEmail) {
       return NextResponse.json(
         { error: "Bu e-posta adresi zaten kullanımda" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     if (existingUsername) {
       return NextResponse.json(
         { error: "Bu kullanıcı adı zaten kullanımda" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -130,14 +130,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Öğretmen oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Öğretmen oluşturulurken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

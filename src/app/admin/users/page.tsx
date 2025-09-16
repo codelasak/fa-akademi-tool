@@ -110,7 +110,7 @@ export default async function AdminUsers() {
                     <td className="py-4">
                       <span
                         className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeColor(
-                          user.role
+                          user.role,
                         )}`}
                       >
                         {getRoleDisplayName(user.role)}

@@ -43,17 +43,19 @@ export default function CreateUser() {
     fetchSchools();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
   };
@@ -61,24 +63,26 @@ export default function CreateUser() {
   const handleSpecializationChange = (index: number, value: string) => {
     const newSpecializations = [...formData.specializations];
     newSpecializations[index] = value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      specializations: newSpecializations
+      specializations: newSpecializations,
     }));
   };
 
   const addSpecialization = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      specializations: [...prev.specializations, ""]
+      specializations: [...prev.specializations, ""],
     }));
   };
 
   const removeSpecialization = (index: number) => {
-    const newSpecializations = formData.specializations.filter((_, i) => i !== index);
-    setFormData(prev => ({
+    const newSpecializations = formData.specializations.filter(
+      (_, i) => i !== index,
+    );
+    setFormData((prev) => ({
       ...prev,
-      specializations: newSpecializations
+      specializations: newSpecializations,
     }));
   };
 
@@ -90,7 +94,7 @@ export default function CreateUser() {
     if (!formData.password.trim()) newErrors.password = "Şifre gerekli";
     if (!formData.firstName.trim()) newErrors.firstName = "Ad gerekli";
     if (!formData.lastName.trim()) newErrors.lastName = "Soyad gerekli";
-    
+
     if (formData.role === "PRINCIPAL" && !formData.schoolId) {
       newErrors.schoolId = "Okul müdürü için okul seçimi gerekli";
     }
@@ -105,7 +109,7 @@ export default function CreateUser() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
@@ -113,8 +117,12 @@ export default function CreateUser() {
     try {
       const requestData = {
         ...formData,
-        hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined,
-        specializations: formData.specializations.filter(s => s.trim() !== "")
+        hourlyRate: formData.hourlyRate
+          ? parseFloat(formData.hourlyRate)
+          : undefined,
+        specializations: formData.specializations.filter(
+          (s) => s.trim() !== "",
+        ),
       };
 
       const response = await fetch("/api/admin/users", {
@@ -175,7 +183,9 @@ export default function CreateUser() {
                   required
                 />
                 {errors.username && (
-                  <p className="mt-1 text-sm text-red-600">Kullanıcı adı gerekli</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    Kullanıcı adı gerekli
+                  </p>
                 )}
               </div>
 
@@ -308,7 +318,9 @@ export default function CreateUser() {
                     required
                   />
                   {errors.hourlyRate && (
-                    <p className="mt-1 text-sm text-red-600">{errors.hourlyRate}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.hourlyRate}
+                    </p>
                   )}
                 </div>
 
@@ -317,11 +329,16 @@ export default function CreateUser() {
                     Branşlar
                   </label>
                   {formData.specializations.map((specialization, index) => (
-                    <div key={index} className="mb-2 flex items-center space-x-2">
+                    <div
+                      key={index}
+                      className="mb-2 flex items-center space-x-2"
+                    >
                       <input
                         type="text"
                         value={specialization}
-                        onChange={(e) => handleSpecializationChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleSpecializationChange(index, e.target.value)
+                        }
                         placeholder="örn: Robotik, Python, Scratch"
                         className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                       />
@@ -339,7 +356,7 @@ export default function CreateUser() {
                   <button
                     type="button"
                     onClick={addSpecialization}
-                    className="text-primary hover:text-primary-dark"
+                    className="hover:text-primary-dark text-primary"
                   >
                     + Branş Ekle
                   </button>

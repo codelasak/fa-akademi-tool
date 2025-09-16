@@ -36,7 +36,9 @@ export default function RecordLessonPage() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [curriculumTopics, setCurriculumTopics] = useState<CurriculumTopic[]>([]);
+  const [curriculumTopics, setCurriculumTopics] = useState<CurriculumTopic[]>(
+    [],
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     classId: searchParams?.get("classId") || "",
@@ -55,13 +57,18 @@ export default function RecordLessonPage() {
     if (formData.classId) {
       fetchCurriculumTopics(formData.classId);
       // Initialize attendance for all students
-      const selectedAssignment = assignments.find(a => a.class.id === formData.classId);
+      const selectedAssignment = assignments.find(
+        (a) => a.class.id === formData.classId,
+      );
       if (selectedAssignment) {
-        const attendance: Record<string, "PRESENT" | "ABSENT" | "LATE" | "EXCUSED"> = {};
-        selectedAssignment.class.students.forEach(student => {
+        const attendance: Record<
+          string,
+          "PRESENT" | "ABSENT" | "LATE" | "EXCUSED"
+        > = {};
+        selectedAssignment.class.students.forEach((student) => {
           attendance[student.id] = "PRESENT";
         });
-        setFormData(prev => ({ ...prev, attendance }));
+        setFormData((prev) => ({ ...prev, attendance }));
       }
     }
   }, [formData.classId, assignments]);
@@ -80,7 +87,9 @@ export default function RecordLessonPage() {
 
   const fetchCurriculumTopics = async (classId: string) => {
     try {
-      const response = await fetch(`/api/teacher/curriculum?classId=${classId}`);
+      const response = await fetch(
+        `/api/teacher/curriculum?classId=${classId}`,
+      );
       if (response.ok) {
         const topicsData = await response.json();
         setCurriculumTopics(topicsData);
@@ -90,31 +99,38 @@ export default function RecordLessonPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleTopicChange = (topicId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       topicIds: prev.topicIds.includes(topicId)
-        ? prev.topicIds.filter(id => id !== topicId)
-        : [...prev.topicIds, topicId]
+        ? prev.topicIds.filter((id) => id !== topicId)
+        : [...prev.topicIds, topicId],
     }));
   };
 
-  const handleAttendanceChange = (studentId: string, status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED") => {
-    setFormData(prev => ({
+  const handleAttendanceChange = (
+    studentId: string,
+    status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED",
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       attendance: {
         ...prev.attendance,
-        [studentId]: status
-      }
+        [studentId]: status,
+      },
     }));
   };
 
@@ -163,7 +179,9 @@ export default function RecordLessonPage() {
     }
   };
 
-  const selectedAssignment = assignments.find(a => a.class.id === formData.classId);
+  const selectedAssignment = assignments.find(
+    (a) => a.class.id === formData.classId,
+  );
 
   return (
     <div className="space-y-6">
@@ -175,7 +193,7 @@ export default function RecordLessonPage() {
           href="/teacher/dashboard"
           className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         >
-          Dashboard'a Dön
+          Dashboard&apos;a Dön
         </Link>
       </div>
 
@@ -183,7 +201,7 @@ export default function RecordLessonPage() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.submit && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 {errors.submit}
               </div>
             )}
@@ -193,7 +211,7 @@ export default function RecordLessonPage() {
               <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
                 Ders Bilgileri
               </h2>
-              
+
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -208,13 +226,19 @@ export default function RecordLessonPage() {
                   >
                     <option value="">Sınıf seçin</option>
                     {assignments.map((assignment) => (
-                      <option key={assignment.class.id} value={assignment.class.id}>
-                        {assignment.class.name} - {assignment.class.subject} ({assignment.class.school.name})
+                      <option
+                        key={assignment.class.id}
+                        value={assignment.class.id}
+                      >
+                        {assignment.class.name} - {assignment.class.subject} (
+                        {assignment.class.school.name})
                       </option>
                     ))}
                   </select>
                   {errors.classId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.classId}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.classId}
+                    </p>
                   )}
                 </div>
 
@@ -251,7 +275,9 @@ export default function RecordLessonPage() {
                     required
                   />
                   {errors.hoursWorked && (
-                    <p className="mt-1 text-sm text-red-600">{errors.hoursWorked}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.hoursWorked}
+                    </p>
                   )}
                 </div>
 
@@ -303,44 +329,54 @@ export default function RecordLessonPage() {
             )}
 
             {/* Attendance */}
-            {selectedAssignment && selectedAssignment.class.students.length > 0 && (
-              <div>
-                <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-                  Yoklama ({selectedAssignment.class.students.length} öğrenci)
-                </h2>
-                <div className="space-y-3">
-                  {selectedAssignment.class.students.map((student) => (
-                    <div
-                      key={student.id}
-                      className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-                    >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {student.firstName} {student.lastName}
-                      </span>
-                      <div className="flex space-x-2">
-                        {["PRESENT", "ABSENT", "LATE", "EXCUSED"].map((status) => (
-                          <label key={status} className="flex items-center">
-                            <input
-                              type="radio"
-                              name={`attendance-${student.id}`}
-                              checked={formData.attendance[student.id] === status}
-                              onChange={() => handleAttendanceChange(student.id, status as any)}
-                              className="mr-1 h-4 w-4 text-primary focus:ring-primary"
-                            />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              {status === "PRESENT" && "Var"}
-                              {status === "ABSENT" && "Yok"}
-                              {status === "LATE" && "Geç"}
-                              {status === "EXCUSED" && "Mazur"}
-                            </span>
-                          </label>
-                        ))}
+            {selectedAssignment &&
+              selectedAssignment.class.students.length > 0 && (
+                <div>
+                  <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
+                    Yoklama ({selectedAssignment.class.students.length} öğrenci)
+                  </h2>
+                  <div className="space-y-3">
+                    {selectedAssignment.class.students.map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
+                      >
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {student.firstName} {student.lastName}
+                        </span>
+                        <div className="flex space-x-2">
+                          {["PRESENT", "ABSENT", "LATE", "EXCUSED"].map(
+                            (status) => (
+                              <label key={status} className="flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`attendance-${student.id}`}
+                                  checked={
+                                    formData.attendance[student.id] === status
+                                  }
+                                  onChange={() =>
+                                    handleAttendanceChange(
+                                      student.id,
+                                      status as any,
+                                    )
+                                  }
+                                  className="mr-1 h-4 w-4 text-primary focus:ring-primary"
+                                />
+                                <span className="text-sm text-gray-700 dark:text-gray-300">
+                                  {status === "PRESENT" && "Var"}
+                                  {status === "ABSENT" && "Yok"}
+                                  {status === "LATE" && "Geç"}
+                                  {status === "EXCUSED" && "Mazur"}
+                                </span>
+                              </label>
+                            ),
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <div className="flex space-x-4">
               <button

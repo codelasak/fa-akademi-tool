@@ -59,25 +59,37 @@ export default async function TeacherAssignmentsPage() {
               </thead>
               <tbody>
                 {assignments.map((assignment: any) => (
-                  <tr key={assignment.id} className="border-b border-gray-100 dark:border-gray-800">
+                  <tr
+                    key={assignment.id}
+                    className="border-b border-gray-100 dark:border-gray-800"
+                  >
                     <td className="py-4">
                       <div className="font-medium text-gray-900 dark:text-gray-100">
-                        {assignment.teacher.user.firstName} {assignment.teacher.user.lastName}
+                        {assignment.teacher.user.firstName}{" "}
+                        {assignment.teacher.user.lastName}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         {assignment.teacher.user.email}
                       </div>
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
-                      <div className="font-medium">{assignment.school.name}</div>
-                      <div className="text-gray-500 dark:text-gray-400">{assignment.school.district}</div>
+                      <div className="font-medium">
+                        {assignment.school.name}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400">
+                        {assignment.school.district}
+                      </div>
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
                       <div className="font-medium">{assignment.class.name}</div>
-                      <div className="text-gray-500 dark:text-gray-400">{assignment.class.subject}</div>
+                      <div className="text-gray-500 dark:text-gray-400">
+                        {assignment.class.subject}
+                      </div>
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {new Date(assignment.assignedAt).toLocaleDateString('tr-TR')}
+                      {new Date(assignment.assignedAt).toLocaleDateString(
+                        "tr-TR",
+                      )}
                     </td>
                     <td className="py-4">
                       <span
@@ -98,9 +110,9 @@ export default async function TeacherAssignmentsPage() {
                         >
                           Düzenle
                         </Link>
-                        <button 
+                        <button
                           className={`${
-                            assignment.isActive 
+                            assignment.isActive
                               ? "text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
                               : "text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                           }`}

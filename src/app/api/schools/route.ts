@@ -13,7 +13,7 @@ const createSchoolSchema = z.object({
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
@@ -37,7 +37,7 @@ export async function GET() {
     console.error("Okul listesi getirme hatası:", error);
     return NextResponse.json(
       { error: "Okullar listelenirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -45,7 +45,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (existingSchool) {
       return NextResponse.json(
         { error: "Bu isimde bir okul zaten mevcut" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,14 +80,14 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Okul oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Okul oluşturulurken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

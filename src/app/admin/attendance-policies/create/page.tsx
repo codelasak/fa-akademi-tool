@@ -18,7 +18,7 @@ export default function CreateAttendancePolicyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preSelectedSchoolId = searchParams.get("schoolId");
-  
+
   const [schools, setSchools] = useState<School[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -31,17 +31,20 @@ export default function CreateAttendancePolicyPage() {
     maxAbsences: 20,
     autoExcuseEnabled: false,
     autoExcuseReasons: [] as string[],
-    effectiveFrom: new Date().toISOString().split('T')[0],
+    effectiveFrom: new Date().toISOString().split("T")[0],
     effectiveTo: "",
   });
   const [newExcuseReason, setNewExcuseReason] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session?.user || session.user.role !== "ADMIN") {
       router.push("/auth/sign-in");
       return;
@@ -51,7 +54,7 @@ export default function CreateAttendancePolicyPage() {
 
     // Set scope based on pre-selected school
     if (preSelectedSchoolId) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         scope: "SCHOOL",
         schoolId: preSelectedSchoolId,
@@ -75,7 +78,7 @@ export default function CreateAttendancePolicyPage() {
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -83,13 +86,13 @@ export default function CreateAttendancePolicyPage() {
     // Clear dependent fields when scope changes
     if (field === "scope") {
       if (value === "GLOBAL") {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           schoolId: "",
           classId: "",
         }));
       } else if (value === "SCHOOL") {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           classId: "",
         }));
@@ -98,7 +101,7 @@ export default function CreateAttendancePolicyPage() {
 
     // Clear class when school changes
     if (field === "schoolId") {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         classId: "",
       }));
@@ -106,8 +109,11 @@ export default function CreateAttendancePolicyPage() {
   };
 
   const addExcuseReason = () => {
-    if (newExcuseReason.trim() && !formData.autoExcuseReasons.includes(newExcuseReason.trim())) {
-      setFormData(prev => ({
+    if (
+      newExcuseReason.trim() &&
+      !formData.autoExcuseReasons.includes(newExcuseReason.trim())
+    ) {
+      setFormData((prev) => ({
         ...prev,
         autoExcuseReasons: [...prev.autoExcuseReasons, newExcuseReason.trim()],
       }));
@@ -116,9 +122,9 @@ export default function CreateAttendancePolicyPage() {
   };
 
   const removeExcuseReason = (reason: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      autoExcuseReasons: prev.autoExcuseReasons.filter(r => r !== reason),
+      autoExcuseReasons: prev.autoExcuseReasons.filter((r) => r !== reason),
     }));
   };
 
@@ -130,8 +136,14 @@ export default function CreateAttendancePolicyPage() {
     try {
       const submitData = {
         ...formData,
-        schoolId: formData.scope === "GLOBAL" ? undefined : formData.schoolId || undefined,
-        classId: formData.scope === "CLASS" ? formData.classId || undefined : undefined,
+        schoolId:
+          formData.scope === "GLOBAL"
+            ? undefined
+            : formData.schoolId || undefined,
+        classId:
+          formData.scope === "CLASS"
+            ? formData.classId || undefined
+            : undefined,
         effectiveTo: formData.effectiveTo || undefined,
       };
 
@@ -144,29 +156,38 @@ export default function CreateAttendancePolicyPage() {
       });
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Politika başarıyla oluşturuldu!' });
+        setMessage({
+          type: "success",
+          text: "Politika başarıyla oluşturuldu!",
+        });
         setTimeout(() => {
           router.push("/admin/attendance-policies");
         }, 2000);
       } else {
         const errorData = await response.json();
-        setMessage({ type: 'error', text: errorData.error || 'Politika oluşturulurken hata oluştu.' });
+        setMessage({
+          type: "error",
+          text: errorData.error || "Politika oluşturulurken hata oluştu.",
+        });
       }
     } catch (error) {
       console.error("Politika oluşturma hatası:", error);
-      setMessage({ type: 'error', text: 'Politika oluşturulurken hata oluştu.' });
+      setMessage({
+        type: "error",
+        text: "Politika oluşturulurken hata oluştu.",
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const selectedSchool = schools.find(s => s.id === formData.schoolId);
+  const selectedSchool = schools.find((s) => s.id === formData.schoolId);
 
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Yükleniyor...</p>
         </div>
       </div>
@@ -188,10 +209,13 @@ export default function CreateAttendancePolicyPage() {
       </div>
 
       {message && (
-        <div className={`rounded-lg p-4 ${
-          message.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+        <div
+          className={`rounded-lg p-4 ${
+            message.type === "success"
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+          }`}
+        >
           {message.text}
         </div>
       )}
@@ -202,7 +226,7 @@ export default function CreateAttendancePolicyPage() {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Temel Bilgiler
           </h2>
-          
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -255,12 +279,14 @@ export default function CreateAttendancePolicyPage() {
                 </label>
                 <select
                   value={formData.schoolId}
-                  onChange={(e) => handleInputChange("schoolId", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("schoolId", e.target.value)
+                  }
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   required
                 >
                   <option value="">Okul seçin</option>
-                  {schools.map(school => (
+                  {schools.map((school) => (
                     <option key={school.id} value={school.id}>
                       {school.name}
                     </option>
@@ -275,12 +301,14 @@ export default function CreateAttendancePolicyPage() {
                   </label>
                   <select
                     value={formData.classId}
-                    onChange={(e) => handleInputChange("classId", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("classId", e.target.value)
+                    }
                     className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     required
                   >
                     <option value="">Sınıf seçin</option>
-                    {selectedSchool.classes.map(cls => (
+                    {selectedSchool.classes.map((cls) => (
                       <option key={cls.id} value={cls.id}>
                         {cls.name}
                       </option>
@@ -297,7 +325,7 @@ export default function CreateAttendancePolicyPage() {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Eşik Değerleri
           </h2>
-          
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -308,7 +336,12 @@ export default function CreateAttendancePolicyPage() {
                 min="1"
                 max="100"
                 value={formData.concernThreshold}
-                onChange={(e) => handleInputChange("concernThreshold", parseInt(e.target.value) || 80)}
+                onChange={(e) =>
+                  handleInputChange(
+                    "concernThreshold",
+                    parseInt(e.target.value) || 80,
+                  )
+                }
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 required
               />
@@ -326,7 +359,12 @@ export default function CreateAttendancePolicyPage() {
                 min="0"
                 max="180"
                 value={formData.lateToleranceMinutes}
-                onChange={(e) => handleInputChange("lateToleranceMinutes", parseInt(e.target.value) || 15)}
+                onChange={(e) =>
+                  handleInputChange(
+                    "lateToleranceMinutes",
+                    parseInt(e.target.value) || 15,
+                  )
+                }
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 required
               />
@@ -344,7 +382,12 @@ export default function CreateAttendancePolicyPage() {
                 min="1"
                 max="365"
                 value={formData.maxAbsences}
-                onChange={(e) => handleInputChange("maxAbsences", parseInt(e.target.value) || 20)}
+                onChange={(e) =>
+                  handleInputChange(
+                    "maxAbsences",
+                    parseInt(e.target.value) || 20,
+                  )
+                }
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 required
               />
@@ -360,13 +403,15 @@ export default function CreateAttendancePolicyPage() {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Otomatik Mazeret Ayarları
           </h2>
-          
+
           <div className="mb-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={formData.autoExcuseEnabled}
-                onChange={(e) => handleInputChange("autoExcuseEnabled", e.target.checked)}
+                onChange={(e) =>
+                  handleInputChange("autoExcuseEnabled", e.target.checked)
+                }
                 className="rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
@@ -396,7 +441,7 @@ export default function CreateAttendancePolicyPage() {
                   Ekle
                 </button>
               </div>
-              
+
               {formData.autoExcuseReasons.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {formData.autoExcuseReasons.map((reason, index) => (
@@ -425,7 +470,7 @@ export default function CreateAttendancePolicyPage() {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Geçerlilik Tarihleri
           </h2>
-          
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -434,7 +479,9 @@ export default function CreateAttendancePolicyPage() {
               <input
                 type="date"
                 value={formData.effectiveFrom}
-                onChange={(e) => handleInputChange("effectiveFrom", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("effectiveFrom", e.target.value)
+                }
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 required
               />
@@ -447,7 +494,9 @@ export default function CreateAttendancePolicyPage() {
               <input
                 type="date"
                 value={formData.effectiveTo}
-                onChange={(e) => handleInputChange("effectiveTo", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("effectiveTo", e.target.value)
+                }
                 className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -12,10 +12,8 @@ const updatePaymentSchema = z.object({
   notes: z.string().optional(),
 });
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
+  const { id } = context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
@@ -26,9 +24,11 @@ export async function PUT(
     const data = updatePaymentSchema.parse(body);
 
     const payment = await prisma.schoolPayment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
-        ...(data.agreedAmount !== undefined && { agreedAmount: data.agreedAmount }),
+        ...(data.agreedAmount !== undefined && {
+          agreedAmount: data.agreedAmount,
+        }),
         ...(data.paidAmount !== undefined && { paidAmount: data.paidAmount }),
         ...(data.paymentDate && { paymentDate: new Date(data.paymentDate) }),
         ...(data.status && { status: data.status }),
@@ -51,22 +51,20 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Ödeme kaydı güncelleme hatası:", error);
     return NextResponse.json(
       { error: "Ödeme kaydı güncellenemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
+  const { id } = context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
@@ -74,7 +72,7 @@ export async function DELETE(
     }
 
     await prisma.schoolPayment.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Ödeme kaydı silindi" });
@@ -82,7 +80,7 @@ export async function DELETE(
     console.error("Ödeme kaydı silme hatası:", error);
     return NextResponse.json(
       { error: "Ödeme kaydı silinemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -25,10 +25,7 @@ export async function GET(request: Request) {
           classId: classId,
           isActive: true,
           effectiveFrom: { lte: new Date() },
-          OR: [
-            { effectiveTo: null },
-            { effectiveTo: { gte: new Date() } },
-          ],
+          OR: [{ effectiveTo: null }, { effectiveTo: { gte: new Date() } }],
         },
         orderBy: { effectiveFrom: "desc" },
       });
@@ -42,10 +39,7 @@ export async function GET(request: Request) {
           schoolId: schoolId,
           isActive: true,
           effectiveFrom: { lte: new Date() },
-          OR: [
-            { effectiveTo: null },
-            { effectiveTo: { gte: new Date() } },
-          ],
+          OR: [{ effectiveTo: null }, { effectiveTo: { gte: new Date() } }],
         },
         orderBy: { effectiveFrom: "desc" },
       });
@@ -58,10 +52,7 @@ export async function GET(request: Request) {
           scope: "GLOBAL",
           isActive: true,
           effectiveFrom: { lte: new Date() },
-          OR: [
-            { effectiveTo: null },
-            { effectiveTo: { gte: new Date() } },
-          ],
+          OR: [{ effectiveTo: null }, { effectiveTo: { gte: new Date() } }],
         },
         orderBy: { effectiveFrom: "desc" },
       });
@@ -90,7 +81,7 @@ export async function GET(request: Request) {
     console.error("Etkili politika getirme hatası:", error);
     return NextResponse.json(
       { error: "Etkili politika getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

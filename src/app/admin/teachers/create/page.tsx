@@ -40,21 +40,23 @@ export default function CreateTeacherPage() {
     bio: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleSpecializationChange = (specialization: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       specializations: prev.specializations.includes(specialization)
-        ? prev.specializations.filter(s => s !== specialization)
-        : [...prev.specializations, specialization]
+        ? prev.specializations.filter((s) => s !== specialization)
+        : [...prev.specializations, specialization],
     }));
   };
 
@@ -135,7 +137,7 @@ export default function CreateTeacherPage() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.submit && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 {errors.submit}
               </div>
             )}
@@ -154,7 +156,9 @@ export default function CreateTeacherPage() {
                   required
                 />
                 {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
 
@@ -241,7 +245,9 @@ export default function CreateTeacherPage() {
                   required
                 />
                 {errors.hourlyRate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.hourlyRate}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.hourlyRate}
+                  </p>
                 )}
               </div>
             </div>
@@ -259,12 +265,16 @@ export default function CreateTeacherPage() {
                       onChange={() => handleSpecializationChange(spec)}
                       className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-800"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{spec}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {spec}
+                    </span>
                   </label>
                 ))}
               </div>
               {errors.specializations && (
-                <p className="mt-1 text-sm text-red-600">{errors.specializations}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.specializations}
+                </p>
               )}
             </div>
 

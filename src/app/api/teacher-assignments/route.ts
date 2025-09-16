@@ -37,7 +37,7 @@ export async function GET() {
     console.error("Öğretmen atamaları listesi getirme hatası:", error);
     return NextResponse.json(
       { error: "Öğretmen atamaları listesi getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     if (!teacher) {
       return NextResponse.json(
         { error: "Seçilen öğretmen bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     if (!school) {
       return NextResponse.json(
         { error: "Seçilen okul bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -86,14 +86,14 @@ export async function POST(request: Request) {
     if (!classItem) {
       return NextResponse.json(
         { error: "Seçilen sınıf bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (classItem.schoolId !== data.schoolId) {
       return NextResponse.json(
         { error: "Seçilen sınıf, seçilen okula ait değil" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
     if (existingAssignment) {
       return NextResponse.json(
         { error: "Bu öğretmen zaten bu sınıfa atanmış" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -137,14 +137,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Öğretmen ataması oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Öğretmen ataması oluşturulurken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

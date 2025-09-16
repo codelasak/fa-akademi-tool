@@ -46,10 +46,7 @@ export async function GET(request: Request) {
           },
         },
       },
-      orderBy: [
-        { year: "desc" },
-        { month: "desc" },
-      ],
+      orderBy: [{ year: "desc" }, { month: "desc" }],
     });
 
     return NextResponse.json(wageRecords);
@@ -57,7 +54,7 @@ export async function GET(request: Request) {
     console.error("Maaş kayıtları getirme hatası:", error);
     return NextResponse.json(
       { error: "Maaş kayıtları getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -73,7 +70,7 @@ export async function POST(request: Request) {
     const data = calculateWagesSchema.parse(body);
 
     // Calculate wages for specified teacher(s) and period
-    const teachersToCalculate = data.teacherId 
+    const teachersToCalculate = data.teacherId
       ? [{ id: data.teacherId }]
       : await prisma.teacherProfile.findMany({ select: { id: true } });
 
@@ -83,8 +80,8 @@ export async function POST(request: Request) {
       // Get teacher's hourly rate
       const teacherProfile = await prisma.teacherProfile.findUnique({
         where: { id: teacher.id },
-        select: { 
-          id: true, 
+        select: {
+          id: true,
           hourlyRate: true,
           user: {
             select: {
@@ -119,7 +116,8 @@ export async function POST(request: Request) {
         return sum + parseFloat(lesson.hoursWorked.toString());
       }, 0);
 
-      const totalAmount = totalHours * parseFloat(teacherProfile.hourlyRate.toString());
+      const totalAmount =
+        totalHours * parseFloat(teacherProfile.hourlyRate.toString());
 
       // Check if wage record already exists
       const existingRecord = await prisma.teacherWageRecord.findUnique({
@@ -196,14 +194,11 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Maaş hesaplama hatası:", error);
-    return NextResponse.json(
-      { error: "Maaş hesaplanamadı" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Maaş hesaplanamadı" }, { status: 500 });
   }
 }

@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user || session.user.role !== "TEACHER") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
@@ -17,14 +17,17 @@ export async function GET() {
     });
 
     if (!teacherProfile) {
-      return NextResponse.json({ error: "Öğretmen profili bulunamadı" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Öğretmen profili bulunamadı" },
+        { status: 404 },
+      );
     }
 
     // Get teacher's active assignments
     const assignments = await prisma.teacherAssignment.findMany({
-      where: { 
+      where: {
         teacherId: teacherProfile.id,
-        isActive: true 
+        isActive: true,
       },
       include: {
         school: true,
@@ -44,7 +47,7 @@ export async function GET() {
     console.error("Öğretmen atamaları getirme hatası:", error);
     return NextResponse.json(
       { error: "Atamalar getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,17 +7,14 @@ import { getEffectivePolicy } from "@/lib/attendance-policy";
 
 export default async function AttendancePoliciesPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/auth/sign-in");
   }
 
   // Get all attendance policies
   const policies = await prisma.attendancePolicy.findMany({
-    orderBy: [
-      { scope: "asc" },
-      { createdAt: "desc" },
-    ],
+    orderBy: [{ scope: "asc" }, { createdAt: "desc" }],
     include: {
       school: {
         select: {
@@ -40,7 +37,9 @@ export default async function AttendancePoliciesPage() {
   });
 
   // Get global policy for display
-  const globalPolicy = policies.find(p => p.scope === "GLOBAL" && p.isActive) || await getEffectivePolicy();
+  const globalPolicy =
+    policies.find((p) => p.scope === "GLOBAL" && p.isActive) ||
+    (await getEffectivePolicy());
 
   // Get all schools for policy management
   const schools = await prisma.school.findMany({
@@ -165,19 +164,29 @@ export default async function AttendancePoliciesPage() {
           <div className="space-y-4">
             {schools.map((school) => {
               const schoolPolicy = school.attendancePolicies[0] || globalPolicy;
-              
+
               return (
-                <div key={school.id} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <div
+                  key={school.id}
+                  className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-gray-100">
                         {school.name}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {school.classes.length} sınıf • {school.classes.reduce((acc, cls) => acc + cls._count.students, 0)} öğrenci
+                        {school.classes.length} sınıf •{" "}
+                        {school.classes.reduce(
+                          (acc, cls) => acc + cls._count.students,
+                          0,
+                        )}{" "}
+                        öğrenci
                       </p>
                       <p className="text-xs text-blue-600 dark:text-blue-400">
-                        {school.attendancePolicies.length > 0 ? "Özel politika" : "Genel politika kullanıyor"}
+                        {school.attendancePolicies.length > 0
+                          ? "Özel politika"
+                          : "Genel politika kullanıyor"}
                       </p>
                     </div>
                     <div className="flex space-x-2">
@@ -185,7 +194,9 @@ export default async function AttendancePoliciesPage() {
                         href={`/admin/attendance-policies/create?schoolId=${school.id}`}
                         className="rounded-lg bg-green-100 px-3 py-1 text-sm text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
                       >
-                        {school.attendancePolicies.length > 0 ? "Düzenle" : "Politika Oluştur"}
+                        {school.attendancePolicies.length > 0
+                          ? "Düzenle"
+                          : "Politika Oluştur"}
                       </Link>
                     </div>
                   </div>
@@ -196,25 +207,33 @@ export default async function AttendancePoliciesPage() {
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         %{schoolPolicy.concernThreshold}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Sorunlu Eşik</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Sorunlu Eşik
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {schoolPolicy.lateToleranceMinutes}dk
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Geç Tolerans</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Geç Tolerans
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {schoolPolicy.maxAbsences}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Max Devamsızlık</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Max Devamsızlık
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-lg font-bold text-green-600 dark:text-green-400">
                         {schoolPolicy.autoExcuseEnabled ? "Aktif" : "Pasif"}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Otomatik Mazeret</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Otomatik Mazeret
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -224,8 +243,18 @@ export default async function AttendancePoliciesPage() {
 
           {schools.length === 0 && (
             <div className="text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h4m6 7v-3a2 2 0 00-2-2h-4a2 2 0 00-2 2v3m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h2M7 7h10M7 11h4m6 7v-3a2 2 0 00-2-2h-4a2 2 0 00-2 2v3m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8"
+                />
               </svg>
               <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
                 Henüz okul bulunmuyor.

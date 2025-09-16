@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -11,10 +11,8 @@ const updateWageSchema = z.object({
   notes: z.string().optional(),
 });
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
+  const { id } = context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
@@ -25,7 +23,7 @@ export async function PUT(
     const data = updateWageSchema.parse(body);
 
     const wageRecord = await prisma.teacherWageRecord.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         ...(data.paidAmount !== undefined && { paidAmount: data.paidAmount }),
         ...(data.paymentDate && { paymentDate: new Date(data.paymentDate) }),
@@ -53,22 +51,20 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Maaş kaydı güncelleme hatası:", error);
     return NextResponse.json(
       { error: "Maaş kaydı güncellenemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
+  const { id } = context.params;
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
@@ -76,7 +72,7 @@ export async function DELETE(
     }
 
     await prisma.teacherWageRecord.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Maaş kaydı silindi" });
@@ -84,7 +80,7 @@ export async function DELETE(
     console.error("Maaş kaydı silme hatası:", error);
     return NextResponse.json(
       { error: "Maaş kaydı silinemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

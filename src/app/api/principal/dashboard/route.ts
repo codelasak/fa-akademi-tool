@@ -21,48 +21,56 @@ export async function GET(req: NextRequest) {
               where: { isActive: true },
               include: {
                 students: {
-                  where: { isActive: true }
+                  where: { isActive: true },
                 },
                 teacherAssignments: {
                   where: { isActive: true },
                   include: {
                     teacher: {
                       include: {
-                        user: true
-                      }
-                    }
-                  }
+                        user: true,
+                      },
+                    },
+                  },
                 },
                 lessons: {
-                  orderBy: { date: 'desc' },
+                  orderBy: { date: "desc" },
                   take: 5,
                   include: {
                     teacher: {
                       include: {
-                        user: true
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                        user: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!principalProfile) {
-      return NextResponse.json({ error: "Principal profile not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Principal profile not found" },
+        { status: 404 },
+      );
     }
 
     // Calculate statistics
     const school = principalProfile.school;
     const totalClasses = school.classes.length;
-    const totalStudents = school.classes.reduce((sum: number, cls: any) => sum + cls.students.length, 0);
+    const totalStudents = school.classes.reduce(
+      (sum: number, cls: any) => sum + cls.students.length,
+      0,
+    );
     const activeTeachers = new Set(
-      school.classes.flatMap((cls: any) => 
-        cls.teacherAssignments.map((assignment: any) => assignment.teacher.userId)
-      )
+      school.classes.flatMap((cls: any) =>
+        cls.teacherAssignments.map(
+          (assignment: any) => assignment.teacher.userId,
+        ),
+      ),
     ).size;
 
     // Get recent attendance data for the school
@@ -73,49 +81,53 @@ export async function GET(req: NextRequest) {
       where: {
         lesson: {
           class: {
-            schoolId: school.id
+            schoolId: school.id,
           },
           date: {
-            gte: oneWeekAgo
-          }
-        }
+            gte: oneWeekAgo,
+          },
+        },
       },
       include: {
         lesson: {
           include: {
-            class: true
-          }
+            class: true,
+          },
         },
-        student: true
-      }
+        student: true,
+      },
     });
 
     // Calculate attendance rate
     const totalAttendanceRecords = recentAttendance.length;
-    const presentRecords = recentAttendance.filter((att: any) => att.status === 'PRESENT').length;
-    const attendanceRate = totalAttendanceRecords > 0 ? 
-      (presentRecords / totalAttendanceRecords) * 100 : 0;
+    const presentRecords = recentAttendance.filter(
+      (att: any) => att.status === "PRESENT",
+    ).length;
+    const attendanceRate =
+      totalAttendanceRecords > 0
+        ? (presentRecords / totalAttendanceRecords) * 100
+        : 0;
 
     // Get recent lessons
     const recentLessons = await prisma.lesson.findMany({
       where: {
         class: {
-          schoolId: school.id
+          schoolId: school.id,
         },
         date: {
-          gte: oneWeekAgo
-        }
+          gte: oneWeekAgo,
+        },
       },
       include: {
         class: true,
         teacher: {
           include: {
-            user: true
-          }
-        }
+            user: true,
+          },
+        },
       },
-      orderBy: { date: 'desc' },
-      take: 10
+      orderBy: { date: "desc" },
+      take: 10,
     });
 
     // Get monthly financial data
@@ -127,47 +139,54 @@ export async function GET(req: NextRequest) {
         schoolId_month_year: {
           schoolId: school.id,
           month: currentMonth,
-          year: currentYear
-        }
-      }
+          year: currentYear,
+        },
+      },
     });
 
     // Get teacher wage data for this school's teachers
-    const schoolTeacherIds = school.classes
-      .flatMap((cls: any) => cls.teacherAssignments.map((assignment: any) => assignment.teacher.id));
+    const schoolTeacherIds = school.classes.flatMap((cls: any) =>
+      cls.teacherAssignments.map((assignment: any) => assignment.teacher.id),
+    );
 
     const monthlyWages = await prisma.teacherWageRecord.findMany({
       where: {
         teacherId: {
-          in: schoolTeacherIds
+          in: schoolTeacherIds,
         },
         month: currentMonth,
-        year: currentYear
+        year: currentYear,
       },
       include: {
         teacher: {
           include: {
-            user: true
-          }
-        }
-      }
+            user: true,
+          },
+        },
+      },
     });
 
-    const totalWages = monthlyWages.reduce((sum: number, wage: any) => sum + Number(wage.totalAmount), 0);
-    const paidWages = monthlyWages.reduce((sum: number, wage: any) => sum + Number(wage.paidAmount), 0);
+    const totalWages = monthlyWages.reduce(
+      (sum: number, wage: any) => sum + Number(wage.totalAmount),
+      0,
+    );
+    const paidWages = monthlyWages.reduce(
+      (sum: number, wage: any) => sum + Number(wage.paidAmount),
+      0,
+    );
 
     const dashboardData = {
       school: {
         id: school.id,
         name: school.name,
         district: school.district,
-        logoUrl: school.logoUrl
+        logoUrl: school.logoUrl,
       },
       statistics: {
         totalClasses,
         totalStudents,
         activeTeachers,
-        attendanceRate: Math.round(attendanceRate * 10) / 10
+        attendanceRate: Math.round(attendanceRate * 10) / 10,
       },
       recentActivity: {
         lessons: recentLessons.map((lesson: any) => ({
@@ -177,21 +196,25 @@ export async function GET(req: NextRequest) {
           subject: lesson.class.subject,
           teacherName: `${lesson.teacher.user.firstName} ${lesson.teacher.user.lastName}`,
           hoursWorked: Number(lesson.hoursWorked),
-          isCancelled: lesson.isCancelled
-        }))
+          isCancelled: lesson.isCancelled,
+        })),
       },
       financial: {
-        monthlyPayment: monthlyPayment ? {
-          amount: Number(monthlyPayment.agreedAmount),
-          status: monthlyPayment.status,
-          dueDate: monthlyPayment.paymentDate || new Date(monthlyPayment.year, monthlyPayment.month - 1, 1) // Use paymentDate or compute from month/year
-        } : null,
+        monthlyPayment: monthlyPayment
+          ? {
+              amount: Number(monthlyPayment.agreedAmount),
+              status: monthlyPayment.status,
+              dueDate:
+                monthlyPayment.paymentDate ||
+                new Date(monthlyPayment.year, monthlyPayment.month - 1, 1), // Use paymentDate or compute from month/year
+            }
+          : null,
         wages: {
           total: totalWages,
           paid: paidWages,
           pending: totalWages - paidWages,
-          count: monthlyWages.length
-        }
+          count: monthlyWages.length,
+        },
       },
       classes: school.classes.map((cls: any) => ({
         id: cls.id,
@@ -199,17 +222,16 @@ export async function GET(req: NextRequest) {
         subject: cls.subject,
         studentCount: cls.students.length,
         teacherCount: cls.teacherAssignments.length,
-        isAttendanceEnabled: cls.isAttendanceEnabled
-      }))
+        isAttendanceEnabled: cls.isAttendanceEnabled,
+      })),
     };
 
     return NextResponse.json(dashboardData);
-
   } catch (error) {
     console.error("Principal dashboard error:", error);
     return NextResponse.json(
       { error: "Failed to fetch dashboard data" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

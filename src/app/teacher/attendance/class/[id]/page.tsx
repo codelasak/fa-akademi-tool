@@ -6,14 +6,15 @@ import Link from "next/link";
 import { getEffectivePolicy } from "@/lib/attendance-policy";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ClassAttendanceDetailPage({ params }: Props) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== "TEACHER") {
     redirect("/auth/sign-in");
   }
@@ -31,7 +32,7 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
   const assignment = await prisma.teacherAssignment.findFirst({
     where: {
       teacherId: teacherProfile.id,
-      classId: params.id,
+      classId: id,
       isActive: true,
     },
     include: {
@@ -62,10 +63,7 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
                 },
               },
             },
-            orderBy: [
-              { firstName: "asc" },
-              { lastName: "asc" },
-            ],
+            orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
           },
           lessons: {
             where: {
@@ -92,20 +90,29 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
   }
 
   // Get effective policy for this class
-  const policy = await getEffectivePolicy(assignment.class.id, assignment.school.id);
+  const policy = await getEffectivePolicy(
+    assignment.class.id,
+    assignment.school.id,
+  );
 
   // Calculate student statistics
-  const studentStats = assignment.class.students.map(student => {
+  const studentStats = assignment.class.students.map((student) => {
     const attendances = student.attendance;
     const totalLessons = attendances.length;
-    
-    const presentCount = attendances.filter(a => a.status === "PRESENT").length;
-    const absentCount = attendances.filter(a => a.status === "ABSENT").length;
-    const lateCount = attendances.filter(a => a.status === "LATE").length;
-    const excusedCount = attendances.filter(a => a.status === "EXCUSED").length;
-    
-    const attendanceRate = totalLessons > 0 ? 
-      ((presentCount + lateCount + excusedCount) / totalLessons * 100) : 0;
+
+    const presentCount = attendances.filter(
+      (a) => a.status === "PRESENT",
+    ).length;
+    const absentCount = attendances.filter((a) => a.status === "ABSENT").length;
+    const lateCount = attendances.filter((a) => a.status === "LATE").length;
+    const excusedCount = attendances.filter(
+      (a) => a.status === "EXCUSED",
+    ).length;
+
+    const attendanceRate =
+      totalLessons > 0
+        ? ((presentCount + lateCount + excusedCount) / totalLessons) * 100
+        : 0;
 
     return {
       student,
@@ -129,12 +136,13 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
             {assignment.class.name} - Devamsızlık Detayları
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {assignment.school.name} • {assignment.class.students.length} öğrenci
+            {assignment.school.name} • {assignment.class.students.length}{" "}
+            öğrenci
           </p>
         </div>
         <div className="flex space-x-3">
           <Link
-            href={`/teacher/attendance/class/${params.id}/take`}
+            href={`/teacher/attendance/class/${id}/take`}
             className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
           >
             Yoklama Al
@@ -153,8 +161,18 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center">
             <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
-              <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239" />
+              <svg
+                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+                />
               </svg>
             </div>
             <div className="ml-4">
@@ -171,8 +189,18 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center">
             <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900">
-              <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="h-6 w-6 text-green-600 dark:text-green-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </div>
             <div className="ml-4">
@@ -189,8 +217,18 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center">
             <div className="rounded-lg bg-yellow-100 p-3 dark:bg-yellow-900">
-              <svg className="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <svg
+                className="h-6 w-6 text-yellow-600 dark:text-yellow-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
             <div className="ml-4">
@@ -198,7 +236,11 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
                 Sorunlu Öğrenci
               </p>
               <p className="text-2xl font-bold text-dark dark:text-white">
-                {studentStats.filter(s => s.attendanceRate < policy.concernThreshold).length}
+                {
+                  studentStats.filter(
+                    (s) => s.attendanceRate < policy.concernThreshold,
+                  ).length
+                }
               </p>
             </div>
           </div>
@@ -207,8 +249,18 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
         <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
           <div className="flex items-center">
             <div className="rounded-lg bg-purple-100 p-3 dark:bg-purple-900">
-              <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <svg
+                className="h-6 w-6 text-purple-600 dark:text-purple-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
               </svg>
             </div>
             <div className="ml-4">
@@ -216,8 +268,15 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
                 Ortalama Devam
               </p>
               <p className="text-2xl font-bold text-dark dark:text-white">
-                {studentStats.length > 0 ? 
-                  Math.round(studentStats.reduce((acc, s) => acc + s.attendanceRate, 0) / studentStats.length) : 0}%
+                {studentStats.length > 0
+                  ? Math.round(
+                      studentStats.reduce(
+                        (acc, s) => acc + s.attendanceRate,
+                        0,
+                      ) / studentStats.length,
+                    )
+                  : 0}
+                %
               </p>
             </div>
           </div>
@@ -234,7 +293,10 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
         <div className="p-6">
           <div className="space-y-4">
             {studentStats.map((stat) => (
-              <div key={stat.student.id} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+              <div
+                key={stat.student.id}
+                className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-gray-900 dark:text-gray-100">
@@ -250,48 +312,64 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
                         <p className="text-lg font-bold text-green-600 dark:text-green-400">
                           {stat.presentCount}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Mevcut</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Mevcut
+                        </p>
                       </div>
                       <div>
                         <p className="text-lg font-bold text-red-600 dark:text-red-400">
                           {stat.absentCount}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Devamsız</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Devamsız
+                        </p>
                       </div>
                       <div>
                         <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
                           {stat.lateCount}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Geç</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Geç
+                        </p>
                       </div>
                       <div>
                         <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
                           {stat.excusedCount}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Mazeret</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Mazeret
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`text-lg font-bold ${
-                        stat.attendanceRate >= 90 ? 'text-green-600 dark:text-green-400' :
-                        stat.attendanceRate >= 80 ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-red-600 dark:text-red-400'
-                      }`}>
+                      <p
+                        className={`text-lg font-bold ${
+                          stat.attendanceRate >= 90
+                            ? "text-green-600 dark:text-green-400"
+                            : stat.attendanceRate >= 80
+                              ? "text-yellow-600 dark:text-yellow-400"
+                              : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
                         %{stat.attendanceRate}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">devam oranı</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        devam oranı
+                      </p>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Progress bar */}
                 <div className="mt-3">
                   <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                    <div 
+                    <div
                       className={`h-full ${
-                        stat.attendanceRate >= 90 ? 'bg-green-500' :
-                        stat.attendanceRate >= 80 ? 'bg-yellow-500' :
-                        'bg-red-500'
+                        stat.attendanceRate >= 90
+                          ? "bg-green-500"
+                          : stat.attendanceRate >= 80
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                       }`}
                       style={{ width: `${stat.attendanceRate}%` }}
                     />
@@ -323,18 +401,25 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
             {recentLessons.map((lesson) => {
               const totalStudents = assignment.class.students.length;
               const attendanceCount = lesson.attendance.length;
-              const presentCount = lesson.attendance.filter(a => a.status === "PRESENT").length;
-              const absentCount = lesson.attendance.filter(a => a.status === "ABSENT").length;
-              
+              const presentCount = lesson.attendance.filter(
+                (a) => a.status === "PRESENT",
+              ).length;
+              const absentCount = lesson.attendance.filter(
+                (a) => a.status === "ABSENT",
+              ).length;
+
               return (
-                <div key={lesson.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                <div
+                  key={lesson.id}
+                  className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
+                >
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
-                      {new Date(lesson.date).toLocaleDateString('tr-TR', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      {new Date(lesson.date).toLocaleDateString("tr-TR", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">

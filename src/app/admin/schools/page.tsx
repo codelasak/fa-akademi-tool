@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function SchoolsPage() {
   const schools = await prisma.school.findMany({
@@ -55,13 +56,18 @@ export default async function SchoolsPage() {
               </thead>
               <tbody>
                 {schools.map((school: any) => (
-                  <tr key={school.id} className="border-b border-gray-100 dark:border-gray-800">
+                  <tr
+                    key={school.id}
+                    className="border-b border-gray-100 dark:border-gray-800"
+                  >
                     <td className="py-4">
                       <div className="flex items-center space-x-3">
                         {school.logoUrl && (
-                          <img
+                          <Image
                             src={school.logoUrl}
                             alt={school.name}
+                            width={40}
+                            height={40}
                             className="h-10 w-10 rounded-full object-cover"
                           />
                         )}
@@ -79,10 +85,9 @@ export default async function SchoolsPage() {
                       {school.classes.length}
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {school.principalProfile 
+                      {school.principalProfile
                         ? `${school.principalProfile.user.firstName} ${school.principalProfile.user.lastName}`
-                        : "Atanmamış"
-                      }
+                        : "Atanmamış"}
                     </td>
                     <td className="py-4">
                       <div className="flex space-x-2">
