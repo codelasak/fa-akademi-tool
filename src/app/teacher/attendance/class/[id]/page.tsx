@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { getEffectivePolicy } from "@/lib/attendance-policy";
 
 interface Props {
   params: {
@@ -89,6 +90,9 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
   if (!assignment) {
     redirect("/teacher/attendance");
   }
+
+  // Get effective policy for this class
+  const policy = await getEffectivePolicy(assignment.class.id, assignment.school.id);
 
   // Calculate student statistics
   const studentStats = assignment.class.students.map(student => {
@@ -194,7 +198,7 @@ export default async function ClassAttendanceDetailPage({ params }: Props) {
                 Sorunlu Öğrenci
               </p>
               <p className="text-2xl font-bold text-dark dark:text-white">
-                {studentStats.filter(s => s.attendanceRate < 80).length}
+                {studentStats.filter(s => s.attendanceRate < policy.concernThreshold).length}
               </p>
             </div>
           </div>

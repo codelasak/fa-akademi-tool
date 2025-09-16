@@ -35,7 +35,7 @@ export default function TakeAttendancePage({ params }: Props) {
   const [attendanceDate, setAttendanceDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
-  const [attendance, setAttendance] = useState<Record<string, string>>({});
+  const [attendance, setAttendance] = useState<Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -61,9 +61,9 @@ export default function TakeAttendancePage({ params }: Props) {
         if (foundAssignment) {
           setAssignment(foundAssignment);
           // Pre-fill all students as present
-          const initialAttendance: Record<string, string> = {};
+          const initialAttendance: Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }> = {};
           foundAssignment.class.students.forEach((student: Student) => {
-            initialAttendance[student.id] = "PRESENT";
+            initialAttendance[student.id] = { status: "PRESENT" };
           });
           setAttendance(initialAttendance);
         } else {
@@ -78,18 +78,22 @@ export default function TakeAttendancePage({ params }: Props) {
     }
   };
 
-  const handleAttendanceChange = (studentId: string, status: string) => {
+  const handleAttendanceChange = (studentId: string, status: string, arrivalMinutes?: number, excuseReason?: string) => {
     setAttendance(prev => ({
       ...prev,
-      [studentId]: status
+      [studentId]: {
+        status,
+        ...(arrivalMinutes !== undefined && { arrivalMinutes }),
+        ...(excuseReason && { excuseReason }),
+      }
     }));
   };
 
   const handleBulkChange = (status: string) => {
     if (assignment) {
-      const bulkAttendance: Record<string, string> = {};
+      const bulkAttendance: Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }> = {};
       assignment.class.students.forEach(student => {
-        bulkAttendance[student.id] = status;
+        bulkAttendance[student.id] = { status };
       });
       setAttendance(bulkAttendance);
     }
@@ -140,10 +144,10 @@ export default function TakeAttendancePage({ params }: Props) {
   };
 
   const attendanceStats = assignment ? {
-    present: Object.values(attendance).filter(status => status === "PRESENT").length,
-    absent: Object.values(attendance).filter(status => status === "ABSENT").length,
-    late: Object.values(attendance).filter(status => status === "LATE").length,
-    excused: Object.values(attendance).filter(status => status === "EXCUSED").length,
+    present: Object.values(attendance).filter(att => att.status === "PRESENT").length,
+    absent: Object.values(attendance).filter(att => att.status === "ABSENT").length,
+    late: Object.values(attendance).filter(att => att.status === "LATE").length,
+    excused: Object.values(attendance).filter(att => att.status === "EXCUSED").length,
   } : { present: 0, absent: 0, late: 0, excused: 0 };
 
   if (isLoading) {
@@ -314,7 +318,7 @@ export default function TakeAttendancePage({ params }: Props) {
                       type="button"
                       onClick={() => handleAttendanceChange(student.id, option.value)}
                       className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        attendance[student.id] === option.value
+                        attendance[student.id]?.status === option.value
                           ? `bg-${option.color}-600 text-white`
                           : `bg-${option.color}-100 text-${option.color}-800 hover:bg-${option.color}-200 dark:bg-${option.color}-900 dark:text-${option.color}-200 dark:hover:bg-${option.color}-800`
                       }`}

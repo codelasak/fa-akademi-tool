@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { getEffectivePolicy } from "@/lib/attendance-policy";
 
 export default async function AttendancePoliciesPage() {
   const session = await getServerSession(authOptions);
@@ -10,6 +11,36 @@ export default async function AttendancePoliciesPage() {
   if (!session?.user || session.user.role !== "ADMIN") {
     redirect("/auth/sign-in");
   }
+
+  // Get all attendance policies
+  const policies = await prisma.attendancePolicy.findMany({
+    orderBy: [
+      { scope: "asc" },
+      { createdAt: "desc" },
+    ],
+    include: {
+      school: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      class: {
+        select: {
+          id: true,
+          name: true,
+          school: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Get global policy for display
+  const globalPolicy = policies.find(p => p.scope === "GLOBAL" && p.isActive) || await getEffectivePolicy();
 
   // Get all schools for policy management
   const schools = await prisma.school.findMany({
@@ -24,6 +55,11 @@ export default async function AttendancePoliciesPage() {
               students: true,
             },
           },
+        },
+      },
+      attendancePolicies: {
+        where: {
+          isActive: true,
         },
       },
     },
@@ -60,7 +96,7 @@ export default async function AttendancePoliciesPage() {
                 Sorunlu Devam Eşiği
               </h3>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                %80
+                %{globalPolicy.concernThreshold}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Bu oranın altındaki öğrenciler sorunlu kabul edilir
@@ -72,7 +108,7 @@ export default async function AttendancePoliciesPage() {
                 Geç Kalma Toleransı
               </h3>
               <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                15 dk
+                {globalPolicy.lateToleranceMinutes} dk
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Bu süreden sonra geç kalma olarak işaretlenir
@@ -84,7 +120,7 @@ export default async function AttendancePoliciesPage() {
                 Maksimum Devamsızlık
               </h3>
               <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                20 gün
+                {globalPolicy.maxAbsences} gün
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Bu sayıdan fazla devamsızlık uyarı verir
@@ -96,7 +132,7 @@ export default async function AttendancePoliciesPage() {
                 Otomatik Mazeret
               </h3>
               <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                Aktif
+                {globalPolicy.autoExcuseEnabled ? "Aktif" : "Pasif"}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Belirli durumlar otomatik mazeret sayılır
@@ -127,62 +163,63 @@ export default async function AttendancePoliciesPage() {
         </div>
         <div className="p-6">
           <div className="space-y-4">
-            {schools.map((school) => (
-              <div key={school.id} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
-                      {school.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {school.classes.length} sınıf • {school.classes.reduce((acc, cls) => acc + cls._count.students, 0)} öğrenci
-                    </p>
+            {schools.map((school) => {
+              const schoolPolicy = school.attendancePolicies[0] || globalPolicy;
+              
+              return (
+                <div key={school.id} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                        {school.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {school.classes.length} sınıf • {school.classes.reduce((acc, cls) => acc + cls._count.students, 0)} öğrenci
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        {school.attendancePolicies.length > 0 ? "Özel politika" : "Genel politika kullanıyor"}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/admin/attendance-policies/create?schoolId=${school.id}`}
+                        className="rounded-lg bg-green-100 px-3 py-1 text-sm text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
+                      >
+                        {school.attendancePolicies.length > 0 ? "Düzenle" : "Politika Oluştur"}
+                      </Link>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Link
-                      href={`/admin/attendance-policies/school/${school.id}`}
-                      className="rounded-lg bg-blue-100 px-3 py-1 text-sm text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200"
-                    >
-                      Politika Görüntüle
-                    </Link>
-                    <Link
-                      href={`/admin/attendance-policies/school/${school.id}/edit`}
-                      className="rounded-lg bg-green-100 px-3 py-1 text-sm text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
-                    >
-                      Düzenle
-                    </Link>
-                  </div>
-                </div>
 
-                {/* School policy preview */}
-                <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      %80
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Sorunlu Eşik</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      15dk
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Geç Tolerans</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      20
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Max Devamsızlık</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                      Aktif
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Otomatik Mazeret</p>
+                  {/* School policy preview */}
+                  <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        %{schoolPolicy.concernThreshold}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Sorunlu Eşik</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {schoolPolicy.lateToleranceMinutes}dk
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Geç Tolerans</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {schoolPolicy.maxAbsences}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Max Devamsızlık</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        {schoolPolicy.autoExcuseEnabled ? "Aktif" : "Pasif"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Otomatik Mazeret</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {schools.length === 0 && (

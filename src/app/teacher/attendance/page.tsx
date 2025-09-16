@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { getEffectivePolicy } from "@/lib/attendance-policy";
 
 export default async function TeacherAttendancePage() {
   const session = await getServerSession(authOptions);
@@ -117,9 +118,12 @@ export default async function TeacherAttendancePage() {
     };
   });
 
-  // Get students with attendance concerns (< 80% attendance)
-  const concernStudents = assignments.flatMap(assignment => 
-    assignment.class.students.filter(student => {
+  // Get students with attendance concerns using policy-based thresholds
+  const concernStudents = await Promise.all(assignments.flatMap(async assignment => {
+    // Get effective policy for this class
+    const policy = await getEffectivePolicy(assignment.class.id, assignment.school.id);
+    
+    return assignment.class.students.filter(student => {
       const studentAttendances = student.attendance;
       const totalAttendances = studentAttendances.length;
       if (totalAttendances === 0) return false;
@@ -129,7 +133,7 @@ export default async function TeacherAttendancePage() {
       ).length;
       
       const attendanceRate = (presentCount / totalAttendances) * 100;
-      return attendanceRate < 80;
+      return attendanceRate < policy.concernThreshold;
     }).map(student => {
       const studentAttendances = student.attendance;
       const totalAttendances = studentAttendances.length;
@@ -143,9 +147,10 @@ export default async function TeacherAttendancePage() {
         attendanceRate: Math.round(attendanceRate),
         totalLessons: totalAttendances,
         class: assignment.class,
+        policy, // Include policy for display
       };
-    })
-  );
+    });
+  })).then(results => results.flat());
 
   return (
     <div className="space-y-6">
@@ -222,7 +227,7 @@ export default async function TeacherAttendancePage() {
                 {concernStudents.length}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                %80'in altında devam
+                Politika eşiğinin altında
               </p>
             </div>
           </div>
@@ -348,7 +353,7 @@ export default async function TeacherAttendancePage() {
               Devamsızlık Sorunu Olan Öğrenciler
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              %80'in altında devam oranına sahip öğrenciler
+              Politika eşiğinin altında devam oranına sahip öğrenciler
             </p>
           </div>
           <div className="p-6">
