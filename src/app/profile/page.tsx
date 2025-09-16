@@ -4,15 +4,44 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { CameraIcon } from "./_components/icons";
 import { SocialAccounts } from "./_components/social-accounts";
 
 export default function Page() {
+  const { data: session, status } = useSession();
   const [data, setData] = useState({
-    name: "Danish Heilium",
-    profilePhoto: "/images/user/user-03.png",
+    name: session?.user?.name || "User",
+    profilePhoto: session?.user?.image || "/images/user/user-03.png",
     coverPhoto: "/images/cover/cover-01.png",
   });
+
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="mx-auto w-full max-w-[970px]">
+        <Breadcrumb pageName="Profile" />
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Please sign in to view your profile
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            You need to be authenticated to access this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (e: any) => {
     if (e.target.name === "profilePhoto" ) {
