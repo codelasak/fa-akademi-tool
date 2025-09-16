@@ -47,6 +47,20 @@ export const NAV_DATA = [
         ],
       },
       {
+        title: "Öğretmen Yönetimi",
+        icon: Icons.User,
+        items: [
+          {
+            title: "Öğretmenler",
+            url: "/admin/teachers",
+          },
+          {
+            title: "Atamalar",
+            url: "/admin/teacher-assignments",
+          },
+        ],
+      },
+      {
         title: "Finans",
         icon: Icons.PieChart,
         items: [
