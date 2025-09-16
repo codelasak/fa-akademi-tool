@@ -70,6 +70,12 @@ enum PaymentStatus {
   OVERDUE
 }
 
+enum PolicyScope {
+  GLOBAL
+  SCHOOL
+  CLASS
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -107,6 +113,7 @@ model School {
   teacherAssignments TeacherAssignment[]
   principalProfile   PrincipalProfile?
   schoolPayments     SchoolPayment[]
+  attendancePolicies AttendancePolicy[]
 
   @@map("schools")
 }
@@ -127,6 +134,7 @@ model Class {
   teacherAssignments TeacherAssignment[]
   lessons           Lesson[]
   curriculumTopics  CurriculumTopic[]
+  attendancePolicies AttendancePolicy[]
 
   @@map("classes")
 }
@@ -305,4 +313,37 @@ model TeacherWageRecord {
 
   @@unique([teacherId, month, year])
   @@map("teacher_wage_records")
+}
+
+model AttendancePolicy {
+  id                    String      @id @default(cuid())
+  name                  String
+  description           String?
+  scope                 PolicyScope
+  schoolId              String?
+  classId               String?
+  
+  // Configurable thresholds
+  concernThreshold      Int         @default(80)  // Percentage below which students are flagged
+  lateToleranceMinutes  Int         @default(15)  // Minutes before marking as late
+  maxAbsences           Int         @default(20)  // Maximum absences before warning
+  
+  // Auto-excuse rules
+  autoExcuseEnabled     Boolean     @default(false)
+  autoExcuseReasons     String[]    // Reasons that auto-excuse absences
+  
+  // Effective dates
+  effectiveFrom         DateTime    @default(now())
+  effectiveTo           DateTime?
+  
+  // Meta
+  isActive              Boolean     @default(true)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  
+  // Relations
+  school                School?     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  class                 Class?      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  @@map("attendance_policies")
 }
