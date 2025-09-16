@@ -28,7 +28,8 @@
     "react-apexcharts": "^1.7.0",
     "react-dom": "19.0.0",
     "tailwind-merge": "^2.6.0",
-    "tsx": "^4.20.5"
+    "tsx": "^4.20.5",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@types/node": "^22",

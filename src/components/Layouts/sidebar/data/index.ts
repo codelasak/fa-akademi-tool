@@ -2,101 +2,131 @@ import * as Icons from "../icons";
 
 export const NAV_DATA = [
   {
-    label: "MAIN MENU",
+    label: "YÖNETİM",
     items: [
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
         items: [
           {
-            title: "eCommerce",
-            url: "/",
+            title: "Ana Sayfa",
+            url: "/admin/dashboard",
           },
         ],
       },
       {
-        title: "Calendar",
-        url: "/calendar",
-        icon: Icons.Calendar,
-        items: [],
-      },
-      {
-        title: "Profile",
-        url: "/profile",
+        title: "Kullanıcı Yönetimi",
         icon: Icons.User,
-        items: [],
-      },
-      {
-        title: "Forms",
-        icon: Icons.Alphabet,
         items: [
           {
-            title: "Form Elements",
-            url: "/forms/form-elements",
+            title: "Kullanıcılar",
+            url: "/admin/users",
           },
           {
-            title: "Form Layout",
-            url: "/forms/form-layout",
+            title: "Yeni Kullanıcı",
+            url: "/admin/users/create",
           },
         ],
       },
       {
-        title: "Tables",
-        url: "/tables",
-        icon: Icons.Table,
+        title: "Okul Yönetimi",
+        icon: Icons.FourCircle,
         items: [
           {
-            title: "Tables",
-            url: "/tables",
+            title: "Okullar",
+            url: "/admin/schools",
+          },
+          {
+            title: "Sınıflar",
+            url: "/admin/classes",
+          },
+          {
+            title: "Öğrenciler",
+            url: "/admin/students",
           },
         ],
       },
       {
-        title: "Pages",
-        icon: Icons.Alphabet,
+        title: "Finans",
+        icon: Icons.PieChart,
         items: [
           {
-            title: "Settings",
-            url: "/pages/settings",
+            title: "Okul Ödemeleri",
+            url: "/admin/finance/school-payments",
+          },
+          {
+            title: "Öğretmen Hakedişleri",
+            url: "/admin/finance/teacher-salaries",
           },
         ],
       },
     ],
   },
   {
-    label: "OTHERS",
+    label: "EĞİTİM",
     items: [
       {
-        title: "Charts",
+        title: "Ders Yönetimi",
+        icon: Icons.Calendar,
+        items: [
+          {
+            title: "Takvim",
+            url: "/admin/lessons/calendar",
+          },
+          {
+            title: "Müfredat",
+            url: "/admin/curriculum",
+          },
+          {
+            title: "Ders Kayıtları",
+            url: "/admin/lessons",
+          },
+        ],
+      },
+      {
+        title: "Yoklama",
+        icon: Icons.Table,
+        items: [
+          {
+            title: "Yoklama Listesi",
+            url: "/admin/attendance",
+          },
+          {
+            title: "Devamsızlık Raporu",
+            url: "/admin/attendance/reports",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "RAPORLAR",
+    items: [
+      {
+        title: "Ders Raporları",
+        icon: Icons.Alphabet,
+        items: [
+          {
+            title: "İlerleme Raporu",
+            url: "/admin/reports/progress",
+          },
+          {
+            title: "Öğretmen Raporu",
+            url: "/admin/reports/teachers",
+          },
+        ],
+      },
+      {
+        title: "Mali Raporlar",
         icon: Icons.PieChart,
         items: [
           {
-            title: "Basic Chart",
-            url: "/charts/basic-chart",
-          },
-        ],
-      },
-      {
-        title: "UI Elements",
-        icon: Icons.FourCircle,
-        items: [
-          {
-            title: "Alerts",
-            url: "/ui-elements/alerts",
+            title: "Ödeme Durumu",
+            url: "/admin/reports/payments",
           },
           {
-            title: "Buttons",
-            url: "/ui-elements/buttons",
-          },
-        ],
-      },
-      {
-        title: "Authentication",
-        icon: Icons.Authentication,
-        items: [
-          {
-            title: "Sign In",
-            url: "/auth/sign-in",
+            title: "Hakediş Raporu",
+            url: "/admin/reports/salaries",
           },
         ],
       },

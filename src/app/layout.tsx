@@ -14,11 +14,14 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | NextAdmin - Next.js Dashboard Kit",
-    default: "NextAdmin - Next.js Dashboard Kit",
+    template: "%s | Fennaver Akademi Yönetim Platformu",
+    default: "Fennaver Akademi Yönetim Platformu",
   },
   description:
-    "Next.js admin dashboard toolkit with 200+ templates, UI components, and integrations for fast dashboard development.",
+    "Fennaver Akademi için kapsamlı eğitim yönetim platformu. Okul, öğretmen, öğrenci ve ders süreçlerini tek merkezden yönetin.",
+  icons: {
+    icon: "/fa-favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
