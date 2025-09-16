@@ -71,7 +71,7 @@ export default function Signin() {
         } else if (session?.user?.role === "TEACHER") {
           router.push("/auth/sign-in?message=teacher-panel-coming-soon");
         } else if (session?.user?.role === "PRINCIPAL") {
-          router.push("/auth/sign-in?message=principal-panel-coming-soon");
+          router.push("/principal");
         } else {
           router.push("/");
         }
