@@ -1,4 +1,5 @@
 import { UserRole } from "@/generated/prisma";
+import { SettingsIcon, DatabaseIcon, ActivityIcon, ShieldIcon } from "./icons";
 
 export interface NavigationItem {
   title: string;
@@ -78,6 +79,24 @@ export const ADMIN_NAVIGATION: RoleNavigation['ADMIN'] = [
     items: [
       { title: "Yoklama Raporları", url: "/admin/reports" },
       { title: "Mali Raporlar", url: "/admin/finances" },
+    ],
+  },
+  {
+    title: "Sistem Ayarları",
+    icon: SettingsIcon,
+    items: [
+      { title: "Yapılandırma", url: "/admin/system/configuration" },
+      { title: "Denetim Kayıtları", url: "/admin/system/audit-logs" },
+      { title: "Sistem Monitörü", url: "/admin/system/monitoring" },
+      { title: "Yedekleme", url: "/admin/system/backup" },
+    ],
+  },
+  {
+    title: "Sistem İşlemleri",
+    icon: DatabaseIcon,
+    items: [
+      { title: "Kullanıcı İşlemleri", url: "/admin/system/bulk-users" },
+      { title: "Parola Sıfırlama", url: "/admin/system/password-reset" },
     ],
   },
 ];

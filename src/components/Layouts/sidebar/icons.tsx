@@ -186,3 +186,63 @@ export function ArrowLeftIcon(props: PropsType) {
     </svg>
   );
 }
+
+export function SettingsIcon(props: PropsType) {
+  return (
+    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 1.25a.75.75 0 01.75.75v2.5a.75.75 0 01-1.5 0V2a.75.75 0 01.75-.75zM5.25 12a.75.75 0 01-.75.75H2a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zM18.75 12a.75.75 0 01-.75.75H16a.75.75 0 010-1.5h2a.75.75 0 01.75.75zM6.69 6.69a.75.75 0 010 1.06L5.06 9.38a.75.75 0 11-1.06-1.06l1.63-1.63a.75.75 0 011.06 0zM17.31 6.69a.75.75 0 011.06 0l1.63 1.63a.75.75 0 11-1.06 1.06l-1.63-1.63a.75.75 0 010-1.06zM12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5zM6.25 12a5.75 5.75 0 1111.5 0 5.75 5.75 0 01-11.5 0z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function DatabaseIcon(props: PropsType) {
+  return (
+    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M3 6.5c0-1.10457.89543-2 2-2h14c1.1046 0 2 .89543 2 2v11c0 1.1046-.8954 2-2 2H5c-1.10457 0-2-.8954-2-2v-11z"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
+      <path
+        d="M3 10h18M3 15h18"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function ActivityIcon(props: PropsType) {
+  return (
+    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M3 12h4l3-8 4 16 3-8h4"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function ShieldIcon(props: PropsType) {
+  return (
+    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+      <path
+        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

@@ -95,7 +95,11 @@ model User {
   // Platform relations
   teacherProfile     TeacherProfile?
   principalProfile   PrincipalProfile?
-  
+
+  // Phase 1 relations
+  auditLogs          AuditLog[]
+  passwordResetTokens PasswordResetToken[]
+
   @@map("users")
 }
 
@@ -322,28 +326,164 @@ model AttendancePolicy {
   scope                 PolicyScope
   schoolId              String?
   classId               String?
-  
+
   // Configurable thresholds
   concernThreshold      Int         @default(80)  // Percentage below which students are flagged
   lateToleranceMinutes  Int         @default(15)  // Minutes before marking as late
   maxAbsences           Int         @default(20)  // Maximum absences before warning
-  
+
   // Auto-excuse rules
   autoExcuseEnabled     Boolean     @default(false)
   autoExcuseReasons     String[]    // Reasons that auto-excuse absences
-  
+
   // Effective dates
   effectiveFrom         DateTime    @default(now())
   effectiveTo           DateTime?
-  
+
   // Meta
   isActive              Boolean     @default(true)
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
-  
+
   // Relations
   school                School?     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   class                 Class?      @relation(fields: [classId], references: [id], onDelete: Cascade)
-  
+
   @@map("attendance_policies")
+}
+
+// Phase 1: Admin Module Completion Models
+
+enum ConfigType {
+  SYSTEM
+  SECURITY
+  EMAIL
+  NOTIFICATION
+  BACKUP
+  INTEGRATION
+}
+
+model SystemConfiguration {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  type        ConfigType
+  value       String      // JSON string for complex values
+  description String?
+  category    String      @default("general")
+  isSensitive Boolean    @default(false) // For passwords, API keys, etc.
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("system_configurations")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  BULK_OPERATION
+  SYSTEM_CHANGE
+  SECURITY_EVENT
+}
+
+enum AuditSeverity {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+model AuditLog {
+  id          String       @id @default(cuid())
+  userId      String?
+  action      AuditAction
+  entityType  String       // e.g., "User", "School", "Class"
+  entityId    String?      // ID of the affected entity
+  severity    AuditSeverity @default(INFO)
+  oldValues   String?      // JSON string of previous state
+  newValues   String?      // JSON string of new state
+  metadata    String?      // JSON string for additional context
+  ipAddress   String?
+  userAgent   String?
+  sessionId   String?
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+enum MetricType {
+  SYSTEM_HEALTH
+  USER_ACTIVITY
+  PERFORMANCE
+  ERROR_RATE
+  DATABASE_SIZE
+  ACTIVE_SESSIONS
+}
+
+model SystemMetric {
+  id          String    @id @default(cuid())
+  type        MetricType
+  name        String
+  value       Float
+  unit        String?   // e.g., "%", "ms", "MB", "count"
+  metadata    String?   // JSON string for additional context
+  recordedAt  DateTime  @default(now())
+
+  @@map("system_metrics")
+  @@index([type])
+  @@index([recordedAt])
+}
+
+enum BackupStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+model BackupRecord {
+  id          String        @id @default(cuid())
+  filename    String
+  size        Int           // Size in bytes
+  status      BackupStatus @default(PENDING)
+  location    String        // Storage location (local, S3, etc.)
+  checksum    String?       // File integrity checksum
+  error       String?       // Error message if failed
+  createdAt   DateTime      @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime?
+  createdBy   String        // User who initiated backup
+
+  @@map("backup_records")
+  @@index([status])
+  @@index([createdAt])
 }
