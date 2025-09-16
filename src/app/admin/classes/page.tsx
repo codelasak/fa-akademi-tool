@@ -9,7 +9,7 @@ export default async function ClassesPage() {
     include: {
       school: true,
       students: true,
-      lessonRecords: true,
+      lessons: true,
     },
   });
 

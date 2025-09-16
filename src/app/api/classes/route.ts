@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 const createClassSchema = z.object({
@@ -11,6 +13,10 @@ const createClassSchema = z.object({
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 403 });
+    }
     const classes = await prisma.class.findMany({
       orderBy: {
         createdAt: "desc",
@@ -34,6 +40,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 403 });
+    }
     const body = await request.json();
     const data = createClassSchema.parse(body);
 
