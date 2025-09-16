@@ -7,8 +7,8 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { ArrowLeftIcon, ChevronUp } from "./icons";
+import { useEffect, useState, useMemo } from "react";
+import { ArrowLeftIcon, ChevronUp as ChevronUpIcon } from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 
@@ -19,7 +19,16 @@ export function RoleBasedSidebar() {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const userRole = session?.user?.role as UserRole;
-  const navigation = userRole ? ROLE_NAVIGATION[userRole] : [];
+  const navigation = useMemo(() => {
+    return userRole ? ROLE_NAVIGATION[userRole] : [];
+  }, [userRole]);
+
+  // Initialize with first section expanded
+  useEffect(() => {
+    if (navigation && navigation.length > 0 && expandedItems.length === 0) {
+      setExpandedItems([navigation[0].title]);
+    }
+  }, [navigation, expandedItems.length]);
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) =>
@@ -30,19 +39,24 @@ export function RoleBasedSidebar() {
   };
 
   useEffect(() => {
-    // Keep collapsible open when its subpage is active
-    navigation?.forEach((section) => {
-      section.items.forEach((item) => {
-        if (item.url === pathname) {
-          const parentSection = navigation?.find(nav =>
-            nav.items.some(navItem => navItem.url === pathname)
-          );
-          if (parentSection && !expandedItems.includes(parentSection.title)) {
-            setExpandedItems(prev => [...prev, parentSection.title]);
+    // Auto-expand sections when their items become active
+    if (navigation) {
+      const activeSections = navigation
+        .filter(section =>
+          section.items.some(item => item.url === pathname)
+        )
+        .map(section => section.title);
+
+      setExpandedItems(prev => {
+        const newExpanded = [...prev];
+        activeSections.forEach(section => {
+          if (!newExpanded.includes(section)) {
+            newExpanded.push(section);
           }
-        }
+        });
+        return newExpanded;
       });
-    });
+    }
   }, [pathname, navigation]);
 
   if (!userRole || !navigation?.length) {
@@ -92,33 +106,97 @@ export function RoleBasedSidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
-            {navigation.map((section) => (
-              <div key={section.title} className="mb-6">
-                <nav role="navigation" aria-label={section.title}>
-                  <ul className="space-y-2">
-                    {section.items.map((item) => (
-                      <li key={item.title}>
-                        <MenuItem
-                          as="link"
-                          href={item.url}
-                          isActive={pathname === item.url}
-                          className="flex items-center gap-3 py-3"
-                        >
-                          {section.icon && (
-                            <section.icon
-                              className="size-6 shrink-0"
-                              aria-hidden="true"
-                            />
+          <div className="custom-scrollbar smooth-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
+            {navigation.map((section) => {
+              const isExpanded = expandedItems.includes(section.title);
+              const hasActiveItem = section.items.some(item => item.url === pathname);
+
+              return (
+                <div key={section.title} className="sidebar-section mb-4">
+                  {/* Collapsible Section Header */}
+                  <button
+                    onClick={() => toggleExpanded(section.title)}
+                    className={cn(
+                      "flex items-center justify-between w-full px-3 py-3 rounded-lg group hover-lift",
+                      "hover:bg-gray-100 dark:hover:bg-gray-800",
+                      isExpanded && "bg-gray-50 dark:bg-gray-800 shadow-sm",
+                      hasActiveItem && "bg-blue-50 dark:bg-blue-900/20 active-pulse"
+                    )}
+                    aria-expanded={isExpanded}
+                    aria-controls={`section-${section.title}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {section.icon && (
+                        <section.icon
+                          className={cn(
+                            "size-5 shrink-0 transition-colors duration-300",
+                            isExpanded || hasActiveItem
+                              ? "text-primary scale-110"
+                              : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                           )}
-                          <span>{item.title}</span>
-                        </MenuItem>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              </div>
-            ))}
+                          aria-hidden="true"
+                        />
+                      )}
+                      <h3 className={cn(
+                        "text-sm font-semibold uppercase tracking-wider transition-colors duration-300",
+                        isExpanded || hasActiveItem
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                      )}>
+                        {section.title}
+                      </h3>
+                    </div>
+                    <ChevronUpIcon
+                      className={cn(
+                        "size-4 shrink-0 chevron-rotate text-gray-400",
+                        isExpanded ? "rotate-0" : "-rotate-90"
+                      )}
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  {/* Collapsible Content */}
+                  <div
+                    id={`section-${section.title}`}
+                    className={cn(
+                      "expand-collapse overflow-hidden",
+                      isExpanded ? "max-h-96 opacity-100 pt-1" : "max-h-0 opacity-0 pt-0"
+                    )}
+                  >
+                    <nav
+                      role="navigation"
+                      aria-label={section.title}
+                    >
+                      <ul className="space-y-1 ml-2">
+                        {section.items.map((item) => (
+                          <li key={item.title}>
+                            <MenuItem
+                              as="link"
+                              href={item.url}
+                              isActive={pathname === item.url}
+                              className={cn(
+                                "sidebar-item flex items-center gap-3 py-2.5 px-3 text-sm rounded-lg",
+                                pathname === item.url
+                                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm"
+                                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                              )}
+                            >
+                              <div className={cn(
+                                "size-2 rounded-full transition-all duration-300",
+                                pathname === item.url
+                                  ? "bg-blue-500 scale-125 shadow-sm"
+                                  : "bg-gray-300 dark:bg-gray-600"
+                              )} />
+                              <span className="font-medium">{item.title}</span>
+                            </MenuItem>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </aside>

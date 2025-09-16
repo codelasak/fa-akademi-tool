@@ -26,39 +26,28 @@ export interface RoleNavigation {
 
 export const ADMIN_NAVIGATION: RoleNavigation['ADMIN'] = [
   {
-    title: "Dashboard",
+    title: "Dashboard & Monitoring",
     icon: require("./icons").HomeIcon,
     items: [
       { title: "Ana Sayfa", url: "/admin/dashboard" },
+      { title: "Sistem Monitörü", url: "/admin/system/monitoring" },
     ],
   },
   {
-    title: "Kullanıcı Yönetimi",
-    icon: require("./icons").User,
-    items: [
-      { title: "Kullanıcılar", url: "/admin/users" },
-      { title: "Yeni Kullanıcı", url: "/admin/users/create" },
-    ],
-  },
-  {
-    title: "Okul Yönetimi",
+    title: "Academic Operations",
     icon: require("./icons").FourCircle,
     items: [
       { title: "Okullar", url: "/admin/schools" },
       { title: "Sınıflar", url: "/admin/classes" },
       { title: "Öğrenciler", url: "/admin/students" },
-    ],
-  },
-  {
-    title: "Öğretmen Yönetimi",
-    icon: require("./icons").User,
-    items: [
       { title: "Öğretmenler", url: "/admin/teachers" },
       { title: "Atamalar", url: "/admin/teacher-assignments" },
+      { title: "Yoklama Politikaları", url: "/admin/attendance-policies" },
+      { title: "Yeni Politika", url: "/admin/attendance-policies/create" },
     ],
   },
   {
-    title: "Finans",
+    title: "Financial Management",
     icon: require("./icons").PieChart,
     items: [
       { title: "Ödemeler", url: "/admin/finances/payments" },
@@ -66,35 +55,22 @@ export const ADMIN_NAVIGATION: RoleNavigation['ADMIN'] = [
     ],
   },
   {
-    title: "Yoklama Politikaları",
-    icon: require("./icons").Table,
-    items: [
-      { title: "Politikalar", url: "/admin/attendance-policies" },
-      { title: "Yeni Politika", url: "/admin/attendance-policies/create" },
-    ],
-  },
-  {
-    title: "Raporlar",
+    title: "Analytics & Reports",
     icon: require("./icons").Alphabet,
     items: [
       { title: "Yoklama Raporları", url: "/admin/reports" },
       { title: "Mali Raporlar", url: "/admin/finances" },
+      { title: "Denetim Kayıtları", url: "/admin/system/audit-logs" },
     ],
   },
   {
-    title: "Sistem Ayarları",
+    title: "System Administration",
     icon: SettingsIcon,
     items: [
+      { title: "Kullanıcılar", url: "/admin/users" },
+      { title: "Yeni Kullanıcı", url: "/admin/users/create" },
       { title: "Yapılandırma", url: "/admin/system/configuration" },
-      { title: "Denetim Kayıtları", url: "/admin/system/audit-logs" },
-      { title: "Sistem Monitörü", url: "/admin/system/monitoring" },
       { title: "Yedekleme", url: "/admin/system/backup" },
-    ],
-  },
-  {
-    title: "Sistem İşlemleri",
-    icon: DatabaseIcon,
-    items: [
       { title: "Kullanıcı İşlemleri", url: "/admin/system/bulk-users" },
       { title: "Parola Sıfırlama", url: "/admin/system/password-reset" },
     ],
@@ -103,22 +79,23 @@ export const ADMIN_NAVIGATION: RoleNavigation['ADMIN'] = [
 
 export const TEACHER_NAVIGATION: RoleNavigation['TEACHER'] = [
   {
-    title: "Dashboard",
+    title: "My Dashboard",
     icon: require("./icons").HomeIcon,
     items: [
       { title: "Ana Sayfa", url: "/teacher/dashboard" },
     ],
   },
   {
-    title: "Ders Yönetimi",
+    title: "Teaching Management",
     icon: require("./icons").Calendar,
     items: [
       { title: "Derslerim", url: "/teacher/lessons" },
       { title: "Ders Kaydet", url: "/teacher/lessons/record" },
+      { title: "Müfredatım", url: "/teacher/curriculum" },
     ],
   },
   {
-    title: "Yoklama",
+    title: "Attendance & Tracking",
     icon: require("./icons").Table,
     items: [
       { title: "Yoklama", url: "/teacher/attendance" },
@@ -127,24 +104,25 @@ export const TEACHER_NAVIGATION: RoleNavigation['TEACHER'] = [
     ],
   },
   {
-    title: "Müfredat",
-    icon: require("./icons").Alphabet,
+    title: "My Profile & Settings",
+    icon: require("./icons").User,
     items: [
-      { title: "Müfredatım", url: "/teacher/curriculum" },
+      { title: "Profilim", url: "/teacher/profile" },
+      { title: "Ayarlar", url: "/teacher/settings" },
     ],
   },
 ];
 
 export const PRINCIPAL_NAVIGATION: RoleNavigation['PRINCIPAL'] = [
   {
-    title: "Dashboard",
+    title: "School Overview",
     icon: require("./icons").HomeIcon,
     items: [
       { title: "Ana Sayfa", url: "/principal" },
     ],
   },
   {
-    title: "Okul Yönetimi",
+    title: "School Management",
     icon: require("./icons").FourCircle,
     items: [
       { title: "Okulum", url: "/principal/school" },
@@ -154,10 +132,19 @@ export const PRINCIPAL_NAVIGATION: RoleNavigation['PRINCIPAL'] = [
     ],
   },
   {
-    title: "Raporlar",
+    title: "Performance & Reports",
     icon: require("./icons").Alphabet,
     items: [
       { title: "Raporlarım", url: "/principal/reports" },
+      { title: "Performans", url: "/principal/performance" },
+    ],
+  },
+  {
+    title: "Academic Operations",
+    icon: require("./icons").Calendar,
+    items: [
+      { title: "Ders Programı", url: "/principal/schedule" },
+      { title: "Yoklama Özeti", url: "/principal/attendance-summary" },
     ],
   },
 ];
