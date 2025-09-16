@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ interface CurriculumTopic {
   orderIndex: number;
 }
 
-export default function RecordLessonPage() {
+function RecordLessonContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -397,5 +397,13 @@ export default function RecordLessonPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RecordLessonPage() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <RecordLessonContent />
+    </Suspense>
   );
 }

@@ -20,8 +20,8 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[970px]">
         <Breadcrumb pageName="Profile" />
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
         </div>
       </div>
     );
@@ -31,8 +31,8 @@ export default function Page() {
     return (
       <div className="mx-auto w-full max-w-[970px]">
         <Breadcrumb pageName="Profile" />
-        <div className="text-center py-16">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="py-16 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
             Please sign in to view your profile
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
