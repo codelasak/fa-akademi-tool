@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 interface Student {
   id: string;
@@ -22,27 +22,30 @@ interface Assignment {
   };
 }
 
-interface Props {
-  params: {
-    id: string;
-  };
-}
-
-export default function TakeAttendancePage({ params }: Props) {
+export default function TakeAttendancePage() {
+  const params = useParams();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [attendanceDate, setAttendanceDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split("T")[0],
   );
-  const [attendance, setAttendance] = useState<Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }>>({});
+  const [attendance, setAttendance] = useState<
+    Record<
+      string,
+      { status: string; arrivalMinutes?: number; excuseReason?: string }
+    >
+  >({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session?.user || session.user.role !== "TEACHER") {
       router.push("/auth/sign-in");
       return;
@@ -56,43 +59,56 @@ export default function TakeAttendancePage({ params }: Props) {
       const response = await fetch("/api/teacher/assignments");
       if (response.ok) {
         const assignments = await response.json();
-        const foundAssignment = assignments.find((a: Assignment) => a.class.id === params.id);
-        
+        const foundAssignment = assignments.find(
+          (a: Assignment) => a.class.id === params.id,
+        );
+
         if (foundAssignment) {
           setAssignment(foundAssignment);
           // Pre-fill all students as present
-          const initialAttendance: Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }> = {};
+          const initialAttendance: Record<
+            string,
+            { status: string; arrivalMinutes?: number; excuseReason?: string }
+          > = {};
           foundAssignment.class.students.forEach((student: Student) => {
             initialAttendance[student.id] = { status: "PRESENT" };
           });
           setAttendance(initialAttendance);
         } else {
-          setMessage({ type: 'error', text: 'Bu sınıfa erişim yetkiniz yok.' });
+          setMessage({ type: "error", text: "Bu sınıfa erişim yetkiniz yok." });
         }
       }
     } catch (error) {
       console.error("Atama getirme hatası:", error);
-      setMessage({ type: 'error', text: 'Sınıf bilgileri getirilemedi.' });
+      setMessage({ type: "error", text: "Sınıf bilgileri getirilemedi." });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAttendanceChange = (studentId: string, status: string, arrivalMinutes?: number, excuseReason?: string) => {
-    setAttendance(prev => ({
+  const handleAttendanceChange = (
+    studentId: string,
+    status: string,
+    arrivalMinutes?: number,
+    excuseReason?: string,
+  ) => {
+    setAttendance((prev) => ({
       ...prev,
       [studentId]: {
         status,
         ...(arrivalMinutes !== undefined && { arrivalMinutes }),
         ...(excuseReason && { excuseReason }),
-      }
+      },
     }));
   };
 
   const handleBulkChange = (status: string) => {
     if (assignment) {
-      const bulkAttendance: Record<string, { status: string; arrivalMinutes?: number; excuseReason?: string }> = {};
-      assignment.class.students.forEach(student => {
+      const bulkAttendance: Record<
+        string,
+        { status: string; arrivalMinutes?: number; excuseReason?: string }
+      > = {};
+      assignment.class.students.forEach((student) => {
         bulkAttendance[student.id] = { status };
       });
       setAttendance(bulkAttendance);
@@ -101,9 +117,9 @@ export default function TakeAttendancePage({ params }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!assignment || !attendanceDate) {
-      setMessage({ type: 'error', text: 'Lütfen tarih seçin.' });
+      setMessage({ type: "error", text: "Lütfen tarih seçin." });
       return;
     }
 
@@ -120,41 +136,53 @@ export default function TakeAttendancePage({ params }: Props) {
           classId: assignment.class.id,
           date: attendanceDate,
           hoursWorked: 1, // Default to 1 hour for attendance only
-          notes: `Yoklama - ${new Date(attendanceDate).toLocaleDateString('tr-TR')}`,
+          notes: `Yoklama - ${new Date(attendanceDate).toLocaleDateString("tr-TR")}`,
           attendance: attendance,
         }),
       });
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Yoklama başarıyla kaydedildi!' });
+        setMessage({ type: "success", text: "Yoklama başarıyla kaydedildi!" });
         // Redirect to class detail after success
         setTimeout(() => {
           router.push(`/teacher/attendance/class/${params.id}`);
         }, 2000);
       } else {
         const errorData = await response.json();
-        setMessage({ type: 'error', text: errorData.error || 'Yoklama kaydedilirken hata oluştu.' });
+        setMessage({
+          type: "error",
+          text: errorData.error || "Yoklama kaydedilirken hata oluştu.",
+        });
       }
     } catch (error) {
       console.error("Yoklama kaydetme hatası:", error);
-      setMessage({ type: 'error', text: 'Yoklama kaydedilirken hata oluştu.' });
+      setMessage({ type: "error", text: "Yoklama kaydedilirken hata oluştu." });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const attendanceStats = assignment ? {
-    present: Object.values(attendance).filter(att => att.status === "PRESENT").length,
-    absent: Object.values(attendance).filter(att => att.status === "ABSENT").length,
-    late: Object.values(attendance).filter(att => att.status === "LATE").length,
-    excused: Object.values(attendance).filter(att => att.status === "EXCUSED").length,
-  } : { present: 0, absent: 0, late: 0, excused: 0 };
+  const attendanceStats = assignment
+    ? {
+        present: Object.values(attendance).filter(
+          (att) => att.status === "PRESENT",
+        ).length,
+        absent: Object.values(attendance).filter(
+          (att) => att.status === "ABSENT",
+        ).length,
+        late: Object.values(attendance).filter((att) => att.status === "LATE")
+          .length,
+        excused: Object.values(attendance).filter(
+          (att) => att.status === "EXCUSED",
+        ).length,
+      }
+    : { present: 0, absent: 0, late: 0, excused: 0 };
 
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Yükleniyor...</p>
         </div>
       </div>
@@ -181,7 +209,8 @@ export default function TakeAttendancePage({ params }: Props) {
             {assignment.class.name} - Yoklama Al
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {assignment.school.name} • {assignment.class.students.length} öğrenci
+            {assignment.school.name} • {assignment.class.students.length}{" "}
+            öğrenci
           </p>
         </div>
         <button
@@ -193,10 +222,13 @@ export default function TakeAttendancePage({ params }: Props) {
       </div>
 
       {message && (
-        <div className={`rounded-lg p-4 ${
-          message.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+        <div
+          className={`rounded-lg p-4 ${
+            message.type === "success"
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+          }`}
+        >
           {message.text}
         </div>
       )}
@@ -207,7 +239,7 @@ export default function TakeAttendancePage({ params }: Props) {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Yoklama Tarihi
           </h2>
-          
+
           <div className="max-w-xs">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Tarih
@@ -227,7 +259,7 @@ export default function TakeAttendancePage({ params }: Props) {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Toplu İşlemler
           </h2>
-          
+
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -265,7 +297,9 @@ export default function TakeAttendancePage({ params }: Props) {
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {attendanceStats.present}
               </p>
-              <p className="text-sm text-green-700 dark:text-green-300">Mevcut</p>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                Mevcut
+              </p>
             </div>
             <div className="rounded-lg bg-red-50 p-3 text-center dark:bg-red-900/20">
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
@@ -277,13 +311,17 @@ export default function TakeAttendancePage({ params }: Props) {
               <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                 {attendanceStats.late}
               </p>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300">Geç Geldi</p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                Geç Geldi
+              </p>
             </div>
             <div className="rounded-lg bg-blue-50 p-3 text-center dark:bg-blue-900/20">
               <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {attendanceStats.excused}
               </p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">Mazeret</p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Mazeret
+              </p>
             </div>
           </div>
         </div>
@@ -293,7 +331,7 @@ export default function TakeAttendancePage({ params }: Props) {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Öğrenci Yoklaması ({assignment.class.students.length} öğrenci)
           </h2>
-          
+
           <div className="space-y-3">
             {assignment.class.students.map((student) => (
               <div
@@ -305,7 +343,7 @@ export default function TakeAttendancePage({ params }: Props) {
                     {student.firstName} {student.lastName}
                   </h4>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   {[
                     { value: "PRESENT", label: "Mevcut", color: "green" },
@@ -316,7 +354,9 @@ export default function TakeAttendancePage({ params }: Props) {
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => handleAttendanceChange(student.id, option.value)}
+                      onClick={() =>
+                        handleAttendanceChange(student.id, option.value)
+                      }
                       className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                         attendance[student.id]?.status === option.value
                           ? `bg-${option.color}-600 text-white`
@@ -336,7 +376,9 @@ export default function TakeAttendancePage({ params }: Props) {
         <div className="flex justify-end space-x-3">
           <button
             type="button"
-            onClick={() => router.push(`/teacher/attendance/class/${params.id}`)}
+            onClick={() =>
+              router.push(`/teacher/attendance/class/${params.id}`)
+            }
             className="rounded-lg bg-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
           >
             İptal

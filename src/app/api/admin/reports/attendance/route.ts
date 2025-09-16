@@ -100,10 +100,7 @@ export async function POST(request: Request) {
           },
         },
       },
-      orderBy: [
-        { lesson: { date: "desc" } },
-        { student: { lastName: "asc" } },
-      ],
+      orderBy: [{ lesson: { date: "desc" } }, { student: { lastName: "asc" } }],
     });
 
     // Group by student for analytics
@@ -132,7 +129,9 @@ export async function POST(request: Request) {
       const studentStat = studentStats.get(studentId);
       studentStat.totalLessons++;
       studentStat[record.status.toLowerCase()]++;
-      studentStat.attendanceRate = ((studentStat.present + studentStat.late) / studentStat.totalLessons) * 100;
+      studentStat.attendanceRate =
+        ((studentStat.present + studentStat.late) / studentStat.totalLessons) *
+        100;
 
       // Class stats
       if (!classStats.has(classId)) {
@@ -176,8 +175,11 @@ export async function POST(request: Request) {
     // Apply policy-based concern detection
     const studentsWithConcerns = [];
     for (const [studentId, stats] of studentStats.entries()) {
-      const policy = await getEffectivePolicy(stats.student.class.id, stats.student.class.school.id);
-      
+      const policy = await getEffectivePolicy(
+        stats.student.class.id,
+        stats.student.class.school.id,
+      );
+
       if (stats.attendanceRate < policy.concernThreshold) {
         studentsWithConcerns.push({
           ...stats,
@@ -189,22 +191,26 @@ export async function POST(request: Request) {
     }
 
     // Convert Maps to Arrays and calculate averages
-    const studentAnalytics = Array.from(studentStats.values()).map(stat => ({
+    const studentAnalytics = Array.from(studentStats.values()).map((stat) => ({
       ...stat,
       attendanceRate: Number(stat.attendanceRate.toFixed(2)),
     }));
 
-    const classAnalytics = Array.from(classStats.values()).map(stat => ({
+    const classAnalytics = Array.from(classStats.values()).map((stat) => ({
       ...stat,
       totalStudents: stat.totalStudents.size,
-      averageAttendanceRate: Number(((stat.present + stat.late) / stat.totalLessons * 100).toFixed(2)),
+      averageAttendanceRate: Number(
+        (((stat.present + stat.late) / stat.totalLessons) * 100).toFixed(2),
+      ),
     }));
 
-    const schoolAnalytics = Array.from(schoolStats.values()).map(stat => ({
+    const schoolAnalytics = Array.from(schoolStats.values()).map((stat) => ({
       ...stat,
       totalStudents: stat.totalStudents.size,
       totalClasses: stat.totalClasses.size,
-      averageAttendanceRate: Number(((stat.present + stat.late) / stat.totalLessons * 100).toFixed(2)),
+      averageAttendanceRate: Number(
+        (((stat.present + stat.late) / stat.totalLessons) * 100).toFixed(2),
+      ),
     }));
 
     const report = {
@@ -227,9 +233,18 @@ export async function POST(request: Request) {
         totalClasses: classStats.size,
         totalSchools: schoolStats.size,
         studentsWithConcerns: studentsWithConcerns.length,
-        overallAttendanceRate: attendanceRecords.length > 0 
-          ? Number((attendanceRecords.filter(r => ["PRESENT", "LATE"].includes(r.status)).length / attendanceRecords.length * 100).toFixed(2))
-          : 0,
+        overallAttendanceRate:
+          attendanceRecords.length > 0
+            ? Number(
+                (
+                  (attendanceRecords.filter((r) =>
+                    ["PRESENT", "LATE"].includes(r.status),
+                  ).length /
+                    attendanceRecords.length) *
+                  100
+                ).toFixed(2),
+              )
+            : 0,
       },
       analytics: {
         byStudent: studentAnalytics,
@@ -244,26 +259,26 @@ export async function POST(request: Request) {
       // Generate CSV format for raw data
       const csvHeaders = [
         "Date",
-        "Student Name", 
+        "Student Name",
         "Class",
         "School",
         "Status",
         "Teacher",
-        "Notes"
+        "Notes",
       ];
-      
-      const csvRows = attendanceRecords.map(record => [
-        new Date(record.lesson.date).toLocaleDateString('tr-TR'),
+
+      const csvRows = attendanceRecords.map((record) => [
+        new Date(record.lesson.date).toLocaleDateString("tr-TR"),
         `${record.student.firstName} ${record.student.lastName}`,
         record.student.class.name,
         record.student.class.school.name,
         record.status,
         `${record.lesson.teacher.user.firstName} ${record.lesson.teacher.user.lastName}`,
-        record.notes || ""
+        record.notes || "",
       ]);
 
       const csvContent = [csvHeaders, ...csvRows]
-        .map(row => row.map(cell => `"${cell}"`).join(","))
+        .map((row) => row.map((cell) => `"${cell}"`).join(","))
         .join("\n");
 
       return new Response(csvContent, {
@@ -279,14 +294,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Devamsızlık raporu oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Rapor oluşturulamadı" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

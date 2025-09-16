@@ -55,7 +55,10 @@ export default async function ClassesPage() {
               </thead>
               <tbody>
                 {classes.map((classItem: any) => (
-                  <tr key={classItem.id} className="border-b border-gray-100 dark:border-gray-800">
+                  <tr
+                    key={classItem.id}
+                    className="border-b border-gray-100 dark:border-gray-800"
+                  >
                     <td className="py-4">
                       <div className="font-medium text-gray-900 dark:text-gray-100">
                         {classItem.name}

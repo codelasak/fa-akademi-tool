@@ -50,11 +50,13 @@ export default function CreateTeacherAssignmentPage() {
 
   useEffect(() => {
     if (formData.schoolId) {
-      setFilteredClasses(classes.filter(c => c.schoolId === formData.schoolId));
+      setFilteredClasses(
+        classes.filter((c) => c.schoolId === formData.schoolId),
+      );
     } else {
       setFilteredClasses([]);
     }
-    setFormData(prev => ({ ...prev, classId: "" }));
+    setFormData((prev) => ({ ...prev, classId: "" }));
   }, [formData.schoolId, classes]);
 
   const fetchTeachers = async () => {
@@ -95,10 +97,10 @@ export default function CreateTeacherAssignmentPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts selecting
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -142,8 +144,8 @@ export default function CreateTeacherAssignmentPage() {
     }
   };
 
-  const selectedTeacher = teachers.find(t => t.id === formData.teacherId);
-  const selectedClass = filteredClasses.find(c => c.id === formData.classId);
+  const selectedTeacher = teachers.find((t) => t.id === formData.teacherId);
+  const selectedClass = filteredClasses.find((c) => c.id === formData.classId);
 
   return (
     <div className="space-y-6">
@@ -163,7 +165,7 @@ export default function CreateTeacherAssignmentPage() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.submit && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 {errors.submit}
               </div>
             )}
@@ -183,18 +185,22 @@ export default function CreateTeacherAssignmentPage() {
                   <option value="">Öğretmen seçin</option>
                   {teachers.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
-                      {teacher.user.firstName} {teacher.user.lastName} - {teacher.specializations.join(", ")}
+                      {teacher.user.firstName} {teacher.user.lastName} -{" "}
+                      {teacher.specializations.join(", ")}
                     </option>
                   ))}
                 </select>
                 {errors.teacherId && (
-                  <p className="mt-1 text-sm text-red-600">{errors.teacherId}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.teacherId}
+                  </p>
                 )}
 
                 {selectedTeacher && (
                   <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
                     <p className="text-sm text-blue-800 dark:text-blue-300">
-                      <strong>Uzmanlik Alanları:</strong> {selectedTeacher.specializations.join(", ")}
+                      <strong>Uzmanlik Alanları:</strong>{" "}
+                      {selectedTeacher.specializations.join(", ")}
                     </p>
                     <p className="text-sm text-blue-600 dark:text-blue-400">
                       E-posta: {selectedTeacher.user.email}
@@ -265,12 +271,17 @@ export default function CreateTeacherAssignmentPage() {
             </div>
 
             {selectedTeacher && selectedClass && (
-              <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 dark:bg-yellow-900/20 dark:border-yellow-800">
-                <h3 className="font-medium text-yellow-800 dark:text-yellow-300">Atama Özeti</h3>
+              <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+                <h3 className="font-medium text-yellow-800 dark:text-yellow-300">
+                  Atama Özeti
+                </h3>
                 <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-400">
-                  <strong>{selectedTeacher.user.firstName} {selectedTeacher.user.lastName}</strong> öğretmeni,{" "}
-                  <strong>{selectedClass.school.name}</strong> okulundaki{" "}
-                  <strong>{selectedClass.name}</strong> sınıfında{" "}
+                  <strong>
+                    {selectedTeacher.user.firstName}{" "}
+                    {selectedTeacher.user.lastName}
+                  </strong>{" "}
+                  öğretmeni, <strong>{selectedClass.school.name}</strong>{" "}
+                  okulundaki <strong>{selectedClass.name}</strong> sınıfında{" "}
                   <strong>{selectedClass.subject}</strong> dersini verecek.
                 </p>
               </div>

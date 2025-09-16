@@ -39,11 +39,13 @@ export default function CreateStudentPage() {
 
   useEffect(() => {
     if (formData.schoolId) {
-      setFilteredClasses(classes.filter(c => c.schoolId === formData.schoolId));
+      setFilteredClasses(
+        classes.filter((c) => c.schoolId === formData.schoolId),
+      );
     } else {
       setFilteredClasses([]);
     }
-    setFormData(prev => ({ ...prev, classId: "" }));
+    setFormData((prev) => ({ ...prev, classId: "" }));
   }, [formData.schoolId, classes]);
 
   const fetchSchools = async () => {
@@ -70,12 +72,14 @@ export default function CreateStudentPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -142,7 +146,7 @@ export default function CreateStudentPage() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.submit && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 {errors.submit}
               </div>
             )}
@@ -162,7 +166,9 @@ export default function CreateStudentPage() {
                   required
                 />
                 {errors.firstName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
 

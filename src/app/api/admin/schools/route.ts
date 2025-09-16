@@ -25,7 +25,7 @@ export async function GET() {
     console.error("Error fetching schools:", error);
     return NextResponse.json(
       { error: "Failed to fetch schools" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     if (!name || !district) {
       return NextResponse.json(
         { error: "Name and district are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating school:", error);
     return NextResponse.json(
       { error: "Failed to create school" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

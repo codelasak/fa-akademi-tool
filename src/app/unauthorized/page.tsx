@@ -8,9 +8,9 @@ export default function Unauthorized() {
           403 - Unauthorized
         </h1>
         <p className="mb-6 text-gray-600">
-          You don't have permission to access this page.
+          You don&apos;t have permission to access this page.
         </p>
-        <Link 
+        <Link
           href="/"
           className="inline-block rounded-lg bg-primary px-6 py-3 text-white hover:bg-opacity-90"
         >

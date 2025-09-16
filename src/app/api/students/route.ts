@@ -35,7 +35,7 @@ export async function GET() {
     console.error("Öğrenci listesi getirme hatası:", error);
     return NextResponse.json(
       { error: "Öğrenci listesi getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     if (!classItem) {
       return NextResponse.json(
         { error: "Seçilen sınıf bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     if (existingStudent) {
       return NextResponse.json(
         { error: "Bu sınıfta aynı isimde bir öğrenci zaten var" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -101,14 +101,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Öğrenci oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Öğrenci oluşturulurken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

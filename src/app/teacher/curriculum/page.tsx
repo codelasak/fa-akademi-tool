@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default async function TeacherCurriculumPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== "TEACHER") {
     redirect("/auth/sign-in");
   }
@@ -22,9 +22,9 @@ export default async function TeacherCurriculumPage() {
 
   // Get teacher's assignments for class selection
   const assignments = await prisma.teacherAssignment.findMany({
-    where: { 
+    where: {
       teacherId: teacherProfile.id,
-      isActive: true 
+      isActive: true,
     },
     include: {
       school: true,
@@ -46,10 +46,7 @@ export default async function TeacherCurriculumPage() {
   // Get all curriculum topics for this teacher
   const curriculumTopics = await prisma.curriculumTopic.findMany({
     where: { teacherId: teacherProfile.id },
-    orderBy: [
-      { classId: "asc" },
-      { orderIndex: "asc" },
-    ],
+    orderBy: [{ classId: "asc" }, { orderIndex: "asc" }],
     include: {
       class: {
         include: {
@@ -70,14 +67,17 @@ export default async function TeacherCurriculumPage() {
   });
 
   // Group topics by class
-  const topicsByClass = curriculumTopics.reduce((acc, topic) => {
-    const classKey = topic.classId;
-    if (!acc[classKey]) {
-      acc[classKey] = [];
-    }
-    acc[classKey].push(topic);
-    return acc;
-  }, {} as Record<string, typeof curriculumTopics>);
+  const topicsByClass = curriculumTopics.reduce(
+    (acc, topic) => {
+      const classKey = topic.classId;
+      if (!acc[classKey]) {
+        acc[classKey] = [];
+      }
+      acc[classKey].push(topic);
+      return acc;
+    },
+    {} as Record<string, typeof curriculumTopics>,
+  );
 
   return (
     <div className="space-y-6">
@@ -119,7 +119,8 @@ export default async function TeacherCurriculumPage() {
                       {assignment.class._count.students} öğrenci
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400">
-                      {topicsByClass[assignment.class.id]?.length || 0} müfredat konusu
+                      {topicsByClass[assignment.class.id]?.length || 0} müfredat
+                      konusu
                     </p>
                   </div>
                   <div className="flex flex-col space-y-2">
@@ -140,7 +141,7 @@ export default async function TeacherCurriculumPage() {
               </div>
             ))}
           </div>
-          
+
           {assignments.length === 0 && (
             <p className="text-center text-gray-500 dark:text-gray-400">
               Henüz sınıf atamanız yok.
@@ -167,8 +168,18 @@ export default async function TeacherCurriculumPage() {
         <div className="p-6">
           {curriculumTopics.length === 0 ? (
             <div className="text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
                 Henüz müfredat konusu eklenmemiş.

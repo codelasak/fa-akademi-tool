@@ -64,7 +64,10 @@ export default async function TeachersPage() {
               </thead>
               <tbody>
                 {teachers.map((teacher: any) => (
-                  <tr key={teacher.id} className="border-b border-gray-100 dark:border-gray-800">
+                  <tr
+                    key={teacher.id}
+                    className="border-b border-gray-100 dark:border-gray-800"
+                  >
                     <td className="py-4">
                       <div className="font-medium text-gray-900 dark:text-gray-100">
                         {teacher.user.firstName} {teacher.user.lastName}
@@ -75,14 +78,16 @@ export default async function TeachersPage() {
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
                       <div className="flex flex-wrap gap-1">
-                        {teacher.specializations.slice(0, 2).map((spec: string, index: number) => (
-                          <span
-                            key={index}
-                            className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                          >
-                            {spec}
-                          </span>
-                        ))}
+                        {teacher.specializations
+                          .slice(0, 2)
+                          .map((spec: string, index: number) => (
+                            <span
+                              key={index}
+                              className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                            >
+                              {spec}
+                            </span>
+                          ))}
                         {teacher.specializations.length > 2 && (
                           <span className="text-xs text-gray-500">
                             +{teacher.specializations.length - 2} daha
@@ -94,7 +99,11 @@ export default async function TeachersPage() {
                       ₺{teacher.hourlyRate.toString()}/saat
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {teacher.assignments.filter((a: any) => a.isActive).length} aktif atama
+                      {
+                        teacher.assignments.filter((a: any) => a.isActive)
+                          .length
+                      }{" "}
+                      aktif atama
                     </td>
                     <td className="py-4 text-sm text-gray-900 dark:text-gray-100">
                       {teacher.lessons.length} ders

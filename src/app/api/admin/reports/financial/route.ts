@@ -56,9 +56,9 @@ export async function POST(request: Request) {
           assignments: {
             some: {
               schoolId: data.schoolId,
-              isActive: true
-            }
-          }
+              isActive: true,
+            },
+          },
         };
       }
 
@@ -88,24 +88,38 @@ export async function POST(request: Request) {
             },
           },
         },
-        orderBy: [
-          { year: "desc" },
-          { month: "desc" },
-        ],
+        orderBy: [{ year: "desc" }, { month: "desc" }],
       });
 
       // Calculate wage analytics
       const wageAnalytics = {
-        totalWages: wageRecords.reduce((sum, w) => sum + parseFloat(w.totalAmount.toString()), 0),
-        totalPaid: wageRecords.reduce((sum, w) => sum + parseFloat(w.paidAmount.toString()), 0),
-        totalPending: wageRecords.filter(w => w.status === "PENDING").reduce((sum, w) => sum + parseFloat(w.totalAmount.toString()), 0),
-        totalOverdue: wageRecords.filter(w => w.status === "OVERDUE").reduce((sum, w) => sum + parseFloat(w.totalAmount.toString()), 0),
-        totalHours: wageRecords.reduce((sum, w) => sum + parseFloat(w.totalHours.toString()), 0),
-        averageHourlyRate: wageRecords.length > 0 
-          ? wageRecords.reduce((sum, w) => sum + parseFloat(w.hourlyRate.toString()), 0) / wageRecords.length
-          : 0,
+        totalWages: wageRecords.reduce(
+          (sum, w) => sum + parseFloat(w.totalAmount.toString()),
+          0,
+        ),
+        totalPaid: wageRecords.reduce(
+          (sum, w) => sum + parseFloat(w.paidAmount.toString()),
+          0,
+        ),
+        totalPending: wageRecords
+          .filter((w) => w.status === "PENDING")
+          .reduce((sum, w) => sum + parseFloat(w.totalAmount.toString()), 0),
+        totalOverdue: wageRecords
+          .filter((w) => w.status === "OVERDUE")
+          .reduce((sum, w) => sum + parseFloat(w.totalAmount.toString()), 0),
+        totalHours: wageRecords.reduce(
+          (sum, w) => sum + parseFloat(w.totalHours.toString()),
+          0,
+        ),
+        averageHourlyRate:
+          wageRecords.length > 0
+            ? wageRecords.reduce(
+                (sum, w) => sum + parseFloat(w.hourlyRate.toString()),
+                0,
+              ) / wageRecords.length
+            : 0,
         recordCount: wageRecords.length,
-        teacherCount: new Set(wageRecords.map(w => w.teacherId)).size,
+        teacherCount: new Set(wageRecords.map((w) => w.teacherId)).size,
       };
 
       report.wageData = {
@@ -138,23 +152,34 @@ export async function POST(request: Request) {
             },
           },
         },
-        orderBy: [
-          { year: "desc" },
-          { month: "desc" },
-        ],
+        orderBy: [{ year: "desc" }, { month: "desc" }],
       });
 
       // Calculate payment analytics
       const paymentAnalytics = {
-        totalRevenue: paymentRecords.reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0),
-        totalReceived: paymentRecords.reduce((sum, p) => sum + parseFloat(p.paidAmount.toString()), 0),
-        totalPending: paymentRecords.filter(p => p.status === "PENDING").reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0),
-        totalOverdue: paymentRecords.filter(p => p.status === "OVERDUE").reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0),
+        totalRevenue: paymentRecords.reduce(
+          (sum, p) => sum + parseFloat(p.agreedAmount.toString()),
+          0,
+        ),
+        totalReceived: paymentRecords.reduce(
+          (sum, p) => sum + parseFloat(p.paidAmount.toString()),
+          0,
+        ),
+        totalPending: paymentRecords
+          .filter((p) => p.status === "PENDING")
+          .reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0),
+        totalOverdue: paymentRecords
+          .filter((p) => p.status === "OVERDUE")
+          .reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0),
         recordCount: paymentRecords.length,
-        schoolCount: new Set(paymentRecords.map(p => p.schoolId)).size,
-        averagePayment: paymentRecords.length > 0 
-          ? paymentRecords.reduce((sum, p) => sum + parseFloat(p.agreedAmount.toString()), 0) / paymentRecords.length
-          : 0,
+        schoolCount: new Set(paymentRecords.map((p) => p.schoolId)).size,
+        averagePayment:
+          paymentRecords.length > 0
+            ? paymentRecords.reduce(
+                (sum, p) => sum + parseFloat(p.agreedAmount.toString()),
+                0,
+              ) / paymentRecords.length
+            : 0,
       };
 
       report.paymentData = {
@@ -168,15 +193,16 @@ export async function POST(request: Request) {
       const totalIncome = report.paymentData?.analytics.totalReceived || 0;
       const totalExpenses = report.wageData?.analytics.totalPaid || 0;
       const netResult = totalIncome - totalExpenses;
-      
-      const outstandingReceivables = report.paymentData?.analytics.totalPending || 0;
+
+      const outstandingReceivables =
+        report.paymentData?.analytics.totalPending || 0;
       const outstandingPayables = report.wageData?.analytics.totalPending || 0;
-      
+
       report.summary = {
         totalIncome,
         totalExpenses,
         netResult,
-        netMargin: totalIncome > 0 ? (netResult / totalIncome * 100) : 0,
+        netMargin: totalIncome > 0 ? (netResult / totalIncome) * 100 : 0,
         outstandingReceivables,
         outstandingPayables,
         netOutstanding: outstandingReceivables - outstandingPayables,
@@ -195,7 +221,7 @@ export async function POST(request: Request) {
       if (data.reportType === "wages") {
         const headers = [
           "Teacher Name",
-          "Email", 
+          "Email",
           "Month",
           "Year",
           "Total Hours",
@@ -203,9 +229,9 @@ export async function POST(request: Request) {
           "Total Amount",
           "Paid Amount",
           "Status",
-          "Payment Date"
+          "Payment Date",
         ];
-        
+
         const rows = report.wageData.records.map((record: any) => [
           `${record.teacher.user.firstName} ${record.teacher.user.lastName}`,
           record.teacher.user.email,
@@ -216,24 +242,26 @@ export async function POST(request: Request) {
           record.totalAmount,
           record.paidAmount,
           record.status,
-          record.paymentDate ? new Date(record.paymentDate).toLocaleDateString('tr-TR') : ""
+          record.paymentDate
+            ? new Date(record.paymentDate).toLocaleDateString("tr-TR")
+            : "",
         ]);
 
         csvContent = [headers, ...rows]
-          .map(row => row.map((cell: any) => `"${cell}"`).join(","))
+          .map((row) => row.map((cell: any) => `"${cell}"`).join(","))
           .join("\n");
       } else if (data.reportType === "payments") {
         const headers = [
           "School Name",
           "District",
-          "Month", 
+          "Month",
           "Year",
           "Agreed Amount",
           "Paid Amount",
           "Status",
-          "Payment Date"
+          "Payment Date",
         ];
-        
+
         const rows = report.paymentData.records.map((record: any) => [
           record.school.name,
           record.school.district,
@@ -242,11 +270,13 @@ export async function POST(request: Request) {
           record.agreedAmount,
           record.paidAmount,
           record.status,
-          record.paymentDate ? new Date(record.paymentDate).toLocaleDateString('tr-TR') : ""
+          record.paymentDate
+            ? new Date(record.paymentDate).toLocaleDateString("tr-TR")
+            : "",
         ]);
 
         csvContent = [headers, ...rows]
-          .map(row => row.map((cell: any) => `"${cell}"`).join(","))
+          .map((row) => row.map((cell: any) => `"${cell}"`).join(","))
           .join("\n");
       } else if (data.reportType === "summary") {
         // Generate combined CSV for summary report
@@ -255,28 +285,64 @@ export async function POST(request: Request) {
           "Description",
           "Amount (TRY)",
           "Status",
-          "Details"
+          "Details",
         ];
-        
+
         const rows: any[] = [];
-        
+
         // Add summary metrics
         if (report.summary) {
-          rows.push(["Income", "Total Income", report.summary.totalIncome, "Completed", "Total received payments"]);
-          rows.push(["Expense", "Total Expenses", report.summary.totalExpenses, "Completed", "Total paid wages"]);
-          rows.push(["Net Result", "Net Profit/Loss", report.summary.netResult, report.summary.netResult >= 0 ? "Positive" : "Negative", `Net margin: ${report.summary.netMargin.toFixed(1)}%`]);
-          rows.push(["Outstanding", "Receivables", report.summary.outstandingReceivables, "Pending", "Unpaid school payments"]);
-          rows.push(["Outstanding", "Payables", report.summary.outstandingPayables, "Pending", "Unpaid teacher wages"]);
-          rows.push(["Cash Flow", "Net Outstanding", report.summary.netOutstanding, report.summary.netOutstanding >= 0 ? "Positive" : "Negative", "Net cash flow position"]);
+          rows.push([
+            "Income",
+            "Total Income",
+            report.summary.totalIncome,
+            "Completed",
+            "Total received payments",
+          ]);
+          rows.push([
+            "Expense",
+            "Total Expenses",
+            report.summary.totalExpenses,
+            "Completed",
+            "Total paid wages",
+          ]);
+          rows.push([
+            "Net Result",
+            "Net Profit/Loss",
+            report.summary.netResult,
+            report.summary.netResult >= 0 ? "Positive" : "Negative",
+            `Net margin: ${report.summary.netMargin.toFixed(1)}%`,
+          ]);
+          rows.push([
+            "Outstanding",
+            "Receivables",
+            report.summary.outstandingReceivables,
+            "Pending",
+            "Unpaid school payments",
+          ]);
+          rows.push([
+            "Outstanding",
+            "Payables",
+            report.summary.outstandingPayables,
+            "Pending",
+            "Unpaid teacher wages",
+          ]);
+          rows.push([
+            "Cash Flow",
+            "Net Outstanding",
+            report.summary.netOutstanding,
+            report.summary.netOutstanding >= 0 ? "Positive" : "Negative",
+            "Net cash flow position",
+          ]);
         }
-        
+
         csvContent = [headers, ...rows]
-          .map(row => row.map((cell: any) => `"${cell}"`).join(","))
+          .map((row) => row.map((cell: any) => `"${cell}"`).join(","))
           .join("\n");
       } else {
         return NextResponse.json(
           { error: "CSV formatı bu rapor türü için desteklenmiyor" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -293,14 +359,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Finansal rapor oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Rapor oluşturulamadı" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

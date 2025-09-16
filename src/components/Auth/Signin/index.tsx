@@ -6,16 +6,28 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 // Development-only component
-function DevCredentialsSelector({ onCredentialSelect }: { onCredentialSelect: (username: string, password: string) => void }) {
+function DevCredentialsSelector({
+  onCredentialSelect,
+}: {
+  onCredentialSelect: (username: string, password: string) => void;
+}) {
   const testCredentials = {
     admin: { username: "admin", password: "admin123", role: "Yönetici" },
     teacher: { username: "teacher1", password: "teacher123", role: "Öğretmen" },
-    principal: { username: "principal1", password: "principal123", role: "Okul Müdürü" }
+    principal: {
+      username: "principal1",
+      password: "principal123",
+      role: "Okul Müdürü",
+    },
   };
 
   const handleSelect = (credentialType: string) => {
-    if (credentialType && testCredentials[credentialType as keyof typeof testCredentials]) {
-      const cred = testCredentials[credentialType as keyof typeof testCredentials];
+    if (
+      credentialType &&
+      testCredentials[credentialType as keyof typeof testCredentials]
+    ) {
+      const cred =
+        testCredentials[credentialType as keyof typeof testCredentials];
       onCredentialSelect(cred.username, cred.password);
     }
   };
@@ -23,10 +35,22 @@ function DevCredentialsSelector({ onCredentialSelect }: { onCredentialSelect: (u
   return (
     <div className="mb-6 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
       <div className="mb-2 flex items-center">
-        <svg className="mr-2 h-4 w-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <svg
+          className="mr-2 h-4 w-4 text-orange-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
-        <span className="text-sm font-medium text-orange-800 dark:text-orange-200">Test Giriş Bilgileri (Geliştirme)</span>
+        <span className="text-sm font-medium text-orange-800 dark:text-orange-200">
+          Test Giriş Bilgileri (Geliştirme)
+        </span>
       </div>
       <select
         onChange={(e) => handleSelect(e.target.value)}
@@ -34,9 +58,16 @@ function DevCredentialsSelector({ onCredentialSelect }: { onCredentialSelect: (u
         defaultValue=""
       >
         <option value="">Test hesabı seçin...</option>
-        <option value="admin">👑 {testCredentials.admin.role} - {testCredentials.admin.username}</option>
-        <option value="teacher">📚 {testCredentials.teacher.role} - {testCredentials.teacher.username}</option>
-        <option value="principal">🏫 {testCredentials.principal.role} - {testCredentials.principal.username}</option>
+        <option value="admin">
+          👑 {testCredentials.admin.role} - {testCredentials.admin.username}
+        </option>
+        <option value="teacher">
+          📚 {testCredentials.teacher.role} - {testCredentials.teacher.username}
+        </option>
+        <option value="principal">
+          🏫 {testCredentials.principal.role} -{" "}
+          {testCredentials.principal.username}
+        </option>
       </select>
     </div>
   );
@@ -86,17 +117,17 @@ export default function Signin() {
   return (
     <>
       <span className="mb-1.5 block font-medium">Ücretsiz Başlayın</span>
-      <h2 className="mb-9 text-2xl font-bold text-dark dark:text-white sm:text-title-xl2">
-        Fennaver Akademi'ye Giriş Yapın
+      <h2 className="sm:text-title-xl2 mb-9 text-2xl font-bold text-dark dark:text-white">
+        Fennaver Akademi&apos;ye Giriş Yapın
       </h2>
 
       {/* Development Test Credentials Selector */}
-      {process.env.NODE_ENV === 'development' && (
-        <DevCredentialsSelector 
+      {process.env.NODE_ENV === "development" && (
+        <DevCredentialsSelector
           onCredentialSelect={(username: string, password: string) => {
             setUsername(username);
             setPassword(password);
-          }} 
+          }}
         />
       )}
 
@@ -133,11 +164,7 @@ export default function Signin() {
           </div>
         </div>
 
-        {error && (
-          <div className="mb-4 text-sm text-red-500">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 text-sm text-red-500">{error}</div>}
 
         <div className="mb-5">
           <input
@@ -150,9 +177,7 @@ export default function Signin() {
       </form>
 
       <div className="mt-6 text-center">
-        <p>
-          Platforma erişim için yöneticinizle iletişime geçin.
-        </p>
+        <p>Platforma erişim için yöneticinizle iletişime geçin.</p>
       </div>
     </>
   );

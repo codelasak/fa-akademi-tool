@@ -30,16 +30,19 @@ export default function BulkAttendancePage() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [attendanceDate, setAttendanceDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split("T")[0],
   );
   const [attendance, setAttendance] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (!session?.user || session.user.role !== "TEACHER") {
       router.push("/auth/sign-in");
       return;
@@ -66,12 +69,12 @@ export default function BulkAttendancePage() {
     setSelectedClass(classId);
     // Reset attendance when class changes
     setAttendance({});
-    
+
     // Pre-fill all students as present
-    const selectedAssignment = assignments.find(a => a.class.id === classId);
+    const selectedAssignment = assignments.find((a) => a.class.id === classId);
     if (selectedAssignment) {
       const initialAttendance: Record<string, string> = {};
-      selectedAssignment.class.students.forEach(student => {
+      selectedAssignment.class.students.forEach((student) => {
         initialAttendance[student.id] = "PRESENT";
       });
       setAttendance(initialAttendance);
@@ -79,17 +82,19 @@ export default function BulkAttendancePage() {
   };
 
   const handleAttendanceChange = (studentId: string, status: string) => {
-    setAttendance(prev => ({
+    setAttendance((prev) => ({
       ...prev,
-      [studentId]: status
+      [studentId]: status,
     }));
   };
 
   const handleBulkChange = (status: string) => {
-    const selectedAssignment = assignments.find(a => a.class.id === selectedClass);
+    const selectedAssignment = assignments.find(
+      (a) => a.class.id === selectedClass,
+    );
     if (selectedAssignment) {
       const bulkAttendance: Record<string, string> = {};
-      selectedAssignment.class.students.forEach(student => {
+      selectedAssignment.class.students.forEach((student) => {
         bulkAttendance[student.id] = status;
       });
       setAttendance(bulkAttendance);
@@ -98,9 +103,9 @@ export default function BulkAttendancePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedClass || !attendanceDate) {
-      setMessage({ type: 'error', text: 'Lütfen sınıf ve tarih seçin.' });
+      setMessage({ type: "error", text: "Lütfen sınıf ve tarih seçin." });
       return;
     }
 
@@ -117,41 +122,55 @@ export default function BulkAttendancePage() {
           classId: selectedClass,
           date: attendanceDate,
           hoursWorked: 1, // Default to 1 hour for bulk attendance
-          notes: `Toplu yoklama - ${new Date(attendanceDate).toLocaleDateString('tr-TR')}`,
+          notes: `Toplu yoklama - ${new Date(attendanceDate).toLocaleDateString("tr-TR")}`,
           attendance: attendance,
         }),
       });
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Yoklama başarıyla kaydedildi!' });
+        setMessage({ type: "success", text: "Yoklama başarıyla kaydedildi!" });
         // Reset form
         setAttendance({});
         setSelectedClass("");
       } else {
         const errorData = await response.json();
-        setMessage({ type: 'error', text: errorData.error || 'Yoklama kaydedilirken hata oluştu.' });
+        setMessage({
+          type: "error",
+          text: errorData.error || "Yoklama kaydedilirken hata oluştu.",
+        });
       }
     } catch (error) {
       console.error("Yoklama kaydetme hatası:", error);
-      setMessage({ type: 'error', text: 'Yoklama kaydedilirken hata oluştu.' });
+      setMessage({ type: "error", text: "Yoklama kaydedilirken hata oluştu." });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const selectedAssignment = assignments.find(a => a.class.id === selectedClass);
-  const attendanceStats = selectedAssignment ? {
-    present: Object.values(attendance).filter(status => status === "PRESENT").length,
-    absent: Object.values(attendance).filter(status => status === "ABSENT").length,
-    late: Object.values(attendance).filter(status => status === "LATE").length,
-    excused: Object.values(attendance).filter(status => status === "EXCUSED").length,
-  } : { present: 0, absent: 0, late: 0, excused: 0 };
+  const selectedAssignment = assignments.find(
+    (a) => a.class.id === selectedClass,
+  );
+  const attendanceStats = selectedAssignment
+    ? {
+        present: Object.values(attendance).filter(
+          (status) => status === "PRESENT",
+        ).length,
+        absent: Object.values(attendance).filter(
+          (status) => status === "ABSENT",
+        ).length,
+        late: Object.values(attendance).filter((status) => status === "LATE")
+          .length,
+        excused: Object.values(attendance).filter(
+          (status) => status === "EXCUSED",
+        ).length,
+      }
+    : { present: 0, absent: 0, late: 0, excused: 0 };
 
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Yükleniyor...</p>
         </div>
       </div>
@@ -167,10 +186,13 @@ export default function BulkAttendancePage() {
       </div>
 
       {message && (
-        <div className={`rounded-lg p-4 ${
-          message.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+        <div
+          className={`rounded-lg p-4 ${
+            message.type === "success"
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+          }`}
+        >
           {message.text}
         </div>
       )}
@@ -181,7 +203,7 @@ export default function BulkAttendancePage() {
           <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
             Sınıf ve Tarih Seçimi
           </h2>
-          
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -224,7 +246,7 @@ export default function BulkAttendancePage() {
               <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
                 Toplu İşlemler
               </h2>
-              
+
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -262,25 +284,33 @@ export default function BulkAttendancePage() {
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {attendanceStats.present}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Mevcut</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Mevcut
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                     {attendanceStats.absent}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Devamsız</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Devamsız
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                     {attendanceStats.late}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Geç Geldi</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Geç Geldi
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {attendanceStats.excused}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Mazeret</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Mazeret
+                  </p>
                 </div>
               </div>
             </div>
@@ -288,9 +318,10 @@ export default function BulkAttendancePage() {
             {/* Student List */}
             <div className="rounded-lg bg-white p-6 shadow-card dark:bg-gray-dark">
               <h2 className="mb-4 text-lg font-semibold text-dark dark:text-white">
-                Öğrenci Listesi ({selectedAssignment.class.students.length} öğrenci)
+                Öğrenci Listesi ({selectedAssignment.class.students.length}{" "}
+                öğrenci)
               </h2>
-              
+
               <div className="space-y-3">
                 {selectedAssignment.class.students.map((student) => (
                   <div
@@ -302,7 +333,7 @@ export default function BulkAttendancePage() {
                         {student.firstName} {student.lastName}
                       </h4>
                     </div>
-                    
+
                     <div className="flex space-x-2">
                       {[
                         { value: "PRESENT", label: "Mevcut", color: "green" },
@@ -313,7 +344,9 @@ export default function BulkAttendancePage() {
                         <button
                           key={option.value}
                           type="button"
-                          onClick={() => handleAttendanceChange(student.id, option.value)}
+                          onClick={() =>
+                            handleAttendanceChange(student.id, option.value)
+                          }
                           className={`rounded-lg px-3 py-1 text-sm ${
                             attendance[student.id] === option.value
                               ? `bg-${option.color}-600 text-white`

@@ -55,10 +55,7 @@ export async function GET(request: Request) {
           },
         },
       },
-      orderBy: [
-        { year: "desc" },
-        { month: "desc" },
-      ],
+      orderBy: [{ year: "desc" }, { month: "desc" }],
     });
 
     return NextResponse.json(payments);
@@ -66,7 +63,7 @@ export async function GET(request: Request) {
     console.error("Ödeme kayıtları getirme hatası:", error);
     return NextResponse.json(
       { error: "Ödeme kayıtları getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -95,7 +92,7 @@ export async function POST(request: Request) {
     if (existingPayment) {
       return NextResponse.json(
         { error: "Bu dönem için zaten ödeme kaydı var" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -124,14 +121,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Ödeme kaydı oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Ödeme kaydı oluşturulamadı" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

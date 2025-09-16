@@ -11,8 +11,14 @@ const createPolicySchema = z.object({
   schoolId: z.string().optional(),
   classId: z.string().optional(),
   concernThreshold: z.number().min(1).max(100, "Eşik %1-100 arasında olmalı"),
-  lateToleranceMinutes: z.number().min(0).max(180, "Tolerans 0-180 dakika arası olmalı"),
-  maxAbsences: z.number().min(1).max(365, "Maksimum devamsızlık 1-365 arası olmalı"),
+  lateToleranceMinutes: z
+    .number()
+    .min(0)
+    .max(180, "Tolerans 0-180 dakika arası olmalı"),
+  maxAbsences: z
+    .number()
+    .min(1)
+    .max(365, "Maksimum devamsızlık 1-365 arası olmalı"),
   autoExcuseEnabled: z.boolean().default(false),
   autoExcuseReasons: z.array(z.string()).default([]),
   effectiveFrom: z.string().optional(),
@@ -27,10 +33,7 @@ export async function GET() {
     }
 
     const policies = await prisma.attendancePolicy.findMany({
-      orderBy: [
-        { scope: "asc" },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ scope: "asc" }, { createdAt: "desc" }],
       include: {
         school: {
           select: {
@@ -57,7 +60,7 @@ export async function GET() {
     console.error("Politika listesi getirme hatası:", error);
     return NextResponse.json(
       { error: "Politika listesi getirilemedi" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -76,21 +79,21 @@ export async function POST(request: Request) {
     if (data.scope === "SCHOOL" && !data.schoolId) {
       return NextResponse.json(
         { error: "Okul politikası için okul seçimi gerekli" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (data.scope === "CLASS" && (!data.classId || !data.schoolId)) {
       return NextResponse.json(
         { error: "Sınıf politikası için sınıf ve okul seçimi gerekli" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (data.scope === "GLOBAL" && (data.schoolId || data.classId)) {
       return NextResponse.json(
         { error: "Genel politika okul veya sınıfa bağlanamaz" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -109,7 +112,7 @@ export async function POST(request: Request) {
     if (existingPolicy) {
       await prisma.attendancePolicy.update({
         where: { id: existingPolicy.id },
-        data: { 
+        data: {
           effectiveTo: new Date(),
           isActive: false,
         },
@@ -128,7 +131,9 @@ export async function POST(request: Request) {
         maxAbsences: data.maxAbsences,
         autoExcuseEnabled: data.autoExcuseEnabled,
         autoExcuseReasons: data.autoExcuseReasons,
-        effectiveFrom: data.effectiveFrom ? new Date(data.effectiveFrom) : new Date(),
+        effectiveFrom: data.effectiveFrom
+          ? new Date(data.effectiveFrom)
+          : new Date(),
         effectiveTo: data.effectiveTo ? new Date(data.effectiveTo) : null,
         isActive: true, // Explicitly set as active
       },
@@ -158,14 +163,14 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.issues[0].message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Politika oluşturma hatası:", error);
     return NextResponse.json(
       { error: "Politika oluşturulamadı" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
