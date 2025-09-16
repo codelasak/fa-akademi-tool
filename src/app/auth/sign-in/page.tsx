@@ -59,6 +59,7 @@ export default function SignIn() {
                   width={405}
                   height={325}
                   className="mx-auto dark:opacity-30"
+                  priority
                 />
               </div>
             </div>

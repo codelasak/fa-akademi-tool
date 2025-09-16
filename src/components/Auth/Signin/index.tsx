@@ -144,6 +144,7 @@ export default function Signin() {
               placeholder="Kullanıcı adınızı girin"
               className="w-full rounded-lg border border-stroke bg-transparent py-[15px] pl-6 pr-10 text-dark outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
               required
+              autoComplete="username"
             />
           </div>
         </div>
@@ -160,6 +161,7 @@ export default function Signin() {
               placeholder="Şifrenizi girin"
               className="w-full rounded-lg border border-stroke bg-transparent py-[15px] pl-6 pr-10 text-dark outline-none focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
               required
+              autoComplete="current-password"
             />
           </div>
         </div>

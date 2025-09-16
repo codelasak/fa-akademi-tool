@@ -528,3 +528,14 @@ input[type="search"]::-webkit-search-cancel-button {
 .custom-gradient-1 {
   background-image: linear-gradient(145deg, #eef 0%, #fff8fc 100%);
 }
+
+/* Fix image aspect ratio warnings */
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Ensure proper aspect ratio maintenance when only one dimension is modified */
+img[width]:not([height]),
+img[height]:not([width]) {
+  aspect-ratio: auto;
+}
