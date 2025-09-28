@@ -9,6 +9,8 @@ frontend:
         - pnpm config set store-dir .pnpm-store
         - echo "Installing dependencies..."
         - pnpm install --no-frozen-lockfile --prefer-offline
+        - echo "Generating Prisma client..."
+        - pnpm run prisma:generate
     build:
       commands:
         - echo "Setting up environment for AWS Amplify..."
@@ -16,18 +18,13 @@ frontend:
         - export NEXT_TELEMETRY_DISABLED=1
         - export SKIP_INSTALL_SIMPLE_GIT_HOOKS=1
         - export CI=true
+        - export DISABLE_DB_DURING_BUILD=1
         - echo "Checking critical env vars (presence only) ..."
         - |
-          if [ -n "$GEMINI_API_KEY" ]; then echo "GEMINI_API_KEY present"; else echo "GEMINI_API_KEY MISSING"; fi
-        - |
-          if [ -n "$NEXT_PUBLIC_SUPABASE_URL" ]; then echo "NEXT_PUBLIC_SUPABASE_URL present"; else echo "NEXT_PUBLIC_SUPABASE_URL MISSING"; fi
-        - |
-          if [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then echo "NEXT_PUBLIC_SUPABASE_ANON_KEY present"; else echo "NEXT_PUBLIC_SUPABASE_ANON_KEY MISSING"; fi
+          if [ -n "$DATABASE_URL" ]; then echo "DATABASE_URL present"; else echo "DATABASE_URL MISSING"; fi
         - echo "Writing .env.production for build-time inlining (no values printed) ..."
         - |
-          printf "NEXT_PUBLIC_SUPABASE_URL=%s\nNEXT_PUBLIC_SUPABASE_ANON_KEY=%s\nNEXT_PUBLIC_APP_URL=%s\nGEMINI_API_KEY=%s\nGOOGLE_API_KEY=%s\nNODE_ENV=production\nNEXT_TELEMETRY_DISABLED=1\n" "$NEXT_PUBLIC_SUPABASE_URL" "$NEXT_PUBLIC_SUPABASE_ANON_KEY" "$NEXT_PUBLIC_APP_URL" "$GEMINI_API_KEY" "$GOOGLE_API_KEY" > .env.production
-        - echo "Running Next.js build..."
-        - pnpm run build
+          printf "DATABASE_URL=%s\nNODE_ENV=production\nNEXT_TELEMETRY_DISABLED=1\n" "$DATABASE_URL" > .env.production
         - echo "Running Next.js build..."
         - pnpm run build
   artifacts:
