@@ -17,7 +17,7 @@ frontend:
         - pnpm config set store-dir .pnpm-store
         - echo "Installing dependencies (including dev) ..."
         - export NODE_ENV=development
-        - pnpm install --frozen-lockfile --prefer-offline --prod=false
+        - pnpm install --no-frozen-lockfile --prefer-offline
         - echo "Verifying PostCSS toolchain is present..."
         - node -e "console.log('tailwindcss:', require.resolve('tailwindcss/package.json'))"
         - node -e "console.log('autoprefixer:', require.resolve('autoprefixer/package.json'))"
