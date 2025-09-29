@@ -3,6 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Selecting Node.js version..."
+        - |
+          export NVM_DIR=~/.nvm
+          if [ -s "$NVM_DIR/nvm.sh" ]; then . "$NVM_DIR/nvm.sh"; fi
+          if command -v nvm >/dev/null 2>&1; then
+            nvm install 20 && nvm use 20
+          fi
+          node -v
         - echo "Installing pnpm..."
         - npm install -g pnpm@9.0.6
         - echo "Setting up pnpm store..."
@@ -22,9 +30,14 @@ frontend:
         - echo "Checking critical env vars (presence only) ..."
         - |
           if [ -n "$DATABASE_URL" ]; then echo "DATABASE_URL present"; else echo "DATABASE_URL MISSING"; fi
+          if [ -n "$NEXTAUTH_URL" ]; then echo "NEXTAUTH_URL present"; else echo "NEXTAUTH_URL MISSING"; fi
+          if [ -n "$NEXTAUTH_SECRET" ]; then echo "NEXTAUTH_SECRET present"; else echo "NEXTAUTH_SECRET MISSING"; fi
         - echo "Writing .env.production for build-time inlining (no values printed) ..."
         - |
-          printf "DATABASE_URL=%s\nNODE_ENV=production\nNEXT_TELEMETRY_DISABLED=1\n" "$DATABASE_URL" > .env.production
+          printf "DATABASE_URL=%s\n" "$DATABASE_URL" > .env.production
+          [ -n "$NEXTAUTH_URL" ] && printf "NEXTAUTH_URL=%s\n" "$NEXTAUTH_URL" >> .env.production || true
+          [ -n "$NEXTAUTH_SECRET" ] && printf "NEXTAUTH_SECRET=%s\n" "$NEXTAUTH_SECRET" >> .env.production || true
+          printf "NODE_ENV=production\nNEXT_TELEMETRY_DISABLED=1\n" >> .env.production
         - echo "Running Next.js build..."
         - pnpm run build
   artifacts:
