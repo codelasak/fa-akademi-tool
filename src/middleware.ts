@@ -7,7 +7,11 @@ export default withAuth(
     const { pathname } = req.nextUrl;
 
     // Allow access to sign-in page and NextAuth API routes only
-    if (pathname.startsWith("/auth") || pathname.startsWith("/api/auth")) {
+    if (
+      pathname.startsWith("/auth") ||
+      pathname.startsWith("/api/auth") ||
+      pathname.startsWith("/api/health")
+    ) {
       return NextResponse.next();
     }
 
@@ -45,7 +49,8 @@ export default withAuth(
         if (
           pathname === "/" ||
           pathname.startsWith("/auth") ||
-          pathname.startsWith("/api/auth")
+          pathname.startsWith("/api/auth") ||
+          pathname.startsWith("/api/health")
         ) {
           return true;
         }
