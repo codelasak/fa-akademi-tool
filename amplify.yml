@@ -15,8 +15,13 @@ frontend:
         - npm install -g pnpm@9.0.6
         - echo "Setting up pnpm store..."
         - pnpm config set store-dir .pnpm-store
-        - echo "Installing dependencies..."
-        - pnpm install --no-frozen-lockfile --prefer-offline
+        - echo "Installing dependencies (including dev) ..."
+        - export NODE_ENV=development
+        - pnpm install --frozen-lockfile --prefer-offline --prod=false
+        - echo "Verifying PostCSS toolchain is present..."
+        - node -e "console.log('tailwindcss:', require.resolve('tailwindcss/package.json'))"
+        - node -e "console.log('autoprefixer:', require.resolve('autoprefixer/package.json'))"
+        - node -e "console.log('postcss:', require.resolve('postcss/package.json'))"
         - echo "Generating Prisma client..."
         - pnpm run prisma:generate
     build:
